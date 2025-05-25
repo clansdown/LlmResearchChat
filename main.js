@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const Store = require('electron-store');
 const contextMenu = require('electron-context-menu');
+const fetch = require('electron').net.fetch || require('node-fetch');
 
 // Create conversation storage directory path
 const getConversationsDir = () => path.join(app.getPath('userData'), 'conversations');
@@ -31,7 +32,15 @@ const store = new Store({
       }
     ],
     activeSystemPromptId: 'default',
-    systemPromptMode: 'once' // 'once' or 'always'
+    systemPromptMode: 'once', // 'once' or 'always'
+    selectedModels: [
+      'openai/gpt-3.5-turbo',
+      'openai/gpt-4',
+      'anthropic/claude-2',
+      'anthropic/claude-instant-1',
+      'google/palm-2-chat-bison',
+      'meta-llama/llama-2-70b-chat'
+    ]
   }
 });
 
@@ -291,6 +300,39 @@ ipcMain.handle('load-conversation-file', async (event, id) => {
   } catch (e) {
     console.error('Error loading conversation:', id, e);
     return null;
+  }
+});
+
+ipcMain.handle('get-available-models', async () => {
+  const cachedModels = store.get('modelsCache');
+  
+  // Return cached models if under 24 hours old
+  if (cachedModels && Date.now() - cachedModels.timestamp < 86400000) {
+    return cachedModels.data;
+  }
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/models');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    const models = data.data.map(model => ({
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      pricing: model.pricing,
+      provider: model.id.split('/')[0]
+    }));
+
+    store.set('modelsCache', {
+      timestamp: Date.now(),
+      data: models
+    });
+    
+    return models;
+  } catch (error) {
+    console.error('Failed to fetch models:', error);
+    return cachedModels?.data || [];
   }
 });
 

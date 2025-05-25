@@ -675,3 +675,34 @@ body {
 .send-btn.stop:hover {
     background-color: #cc0000;
 }
+
+/* Model configuration styles */
+.model-selection-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.model-selection-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.model-selection-item:last-child {
+    border-bottom: none;
+}
+
+.model-selection-item label {
+    flex: 1;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.model-config-section {
+    margin-bottom: 16px;
+}

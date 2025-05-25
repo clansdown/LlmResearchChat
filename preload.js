@@ -26,5 +26,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   
   // Spellcheck
-  getSpellcheckSuggestions: (word) => ipcRenderer.invoke('get-spellcheck-suggestions', word)
+  getSpellcheckSuggestions: (word) => ipcRenderer.invoke('get-spellcheck-suggestions', word),
+  
+  // Models
+  getAvailableModels: () => ipcRenderer.invoke('get-available-models')
 });

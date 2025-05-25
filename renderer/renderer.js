@@ -44,6 +44,9 @@ async function init() {
     
     // Load system prompts into selector
     loadSystemPrompts();
+    
+    // Load available models
+    await loadAvailableModels();
 }
 
 // Apply settings to the UI
@@ -526,15 +529,20 @@ async function saveSettings() {
         fontSize: parseInt(document.getElementById('font-size').value),
         spellCheck: document.getElementById('spell-check').checked,
         autoSave: document.getElementById('auto-save').checked,
-        defaultModel: document.getElementById('model-selector').value,
+        defaultModel: settings.defaultModel,
         searchEngine: document.getElementById('search-engine').value,
         systemPromptMode: document.getElementById('system-prompt-mode').value,
-        systemPrompts: settings.systemPrompts
+        systemPrompts: settings.systemPrompts,
+        selectedModels: settings.selectedModels
     };
     
     await window.electronAPI.saveSettings(newSettings);
     settings = { ...settings, ...newSettings };
     applySettings();
+    
+    // Reload models with new configuration
+    await loadAvailableModels();
+    
     closeSettings();
 }
 
@@ -641,6 +649,48 @@ function loadSystemPrompts() {
     });
 }
 
+// Load available models
+async function loadAvailableModels() {
+    try {
+        const allModels = await window.electronAPI.getAvailableModels();
+        const enabledModels = settings.selectedModels || [];
+        
+        // Filter and sort models
+        const modelsToShow = allModels
+            .filter(m => enabledModels.includes(m.id))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        const modelSelector = document.getElementById('model-selector');
+        modelSelector.innerHTML = '';
+        
+        modelsToShow.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = `${model.name} (${formatPricing(model.pricing)})`;
+            option.title = `${model.description}\nProvider: ${model.provider}`;
+            modelSelector.appendChild(option);
+        });
+
+        // Set default model
+        if (modelsToShow.some(m => m.id === settings.defaultModel)) {
+            modelSelector.value = settings.defaultModel;
+        }
+        
+        // Load models in settings modal
+        await displayModelConfiguration(allModels);
+    } catch (error) {
+        console.error('Error loading models:', error);
+    }
+}
+
+// Format pricing information
+function formatPricing(pricing) {
+    if (!pricing) return 'Pricing unavailable';
+    const prompt = pricing.prompt ? `$${pricing.prompt}` : 'N/A';
+    const completion = pricing.completion ? `$${pricing.completion}` : 'N/A';
+    return `${prompt}/${completion} per 1M tokens`;
+}
+
 // Display system prompts in settings
 function displaySystemPrompts() {
     const container = document.getElementById('system-prompts-container');
@@ -740,6 +790,62 @@ function deleteSystemPrompt(id) {
     }
     displaySystemPrompts();
     loadSystemPrompts();
+}
+
+// Display model configuration in settings
+async function displayModelConfiguration(models) {
+    const container = document.getElementById('model-selection-list');
+    const defaultSelector = document.getElementById('default-model-select');
+    
+    // Clear existing elements
+    container.innerHTML = '';
+    defaultSelector.innerHTML = '';
+
+    models.forEach(model => {
+        // Model selection checkboxes
+        const div = document.createElement('div');
+        div.className = 'model-selection-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `model-${model.id}`;
+        checkbox.checked = (settings.selectedModels || []).includes(model.id);
+        checkbox.addEventListener('change', () => toggleModelSelection(model.id));
+        
+        const label = document.createElement('label');
+        label.htmlFor = `model-${model.id}`;
+        label.textContent = `${model.name} (${model.provider})`;
+        label.title = model.description;
+        
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        container.appendChild(div);
+
+        // Default model options
+        const option = document.createElement('option');
+        option.value = model.id;
+        option.textContent = model.name;
+        defaultSelector.appendChild(option);
+    });
+
+    defaultSelector.value = settings.defaultModel;
+    defaultSelector.addEventListener('change', (e) => {
+        settings.defaultModel = e.target.value;
+    });
+}
+
+// Toggle model selection
+function toggleModelSelection(modelId) {
+    if (!settings.selectedModels) {
+        settings.selectedModels = [];
+    }
+    
+    const index = settings.selectedModels.indexOf(modelId);
+    if (index === -1) {
+        settings.selectedModels.push(modelId);
+    } else {
+        settings.selectedModels.splice(index, 1);
+    }
 }
 
 // Update send button state
