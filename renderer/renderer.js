@@ -207,7 +207,11 @@ async function loadConversation(conversationItem) {
     chatMessages.innerHTML = '';
     
     currentConversation.messages.forEach(msg => {
-        appendMessage(msg.role, msg.content, false);
+        if (msg.role === 'assistant') {
+            appendMessage(msg.role, msg.content, false, msg.modelName);
+        } else {
+            appendMessage(msg.role, msg.content, false);
+        }
     });
     
     updateConversationList();
@@ -377,7 +381,12 @@ async function callOpenRouterStreaming(messages) {
     }
     
     // Add the complete message to conversation
-    currentConversation.messages.push({ role: 'assistant', content: fullContent });
+    const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
+    currentConversation.messages.push({ 
+        role: 'assistant', 
+        content: fullContent,
+        modelName: modelName
+    });
     
     // Update conversation title if it's the first exchange
     if (currentConversation.messages.filter(m => m.role === 'user').length === 1) {
@@ -390,7 +399,7 @@ async function callOpenRouterStreaming(messages) {
 }
 
 // Append a message to the chat
-function appendMessage(role, content, animate = true) {
+function appendMessage(role, content, animate = true, modelName = null) {
     const chatMessages = document.getElementById('chat-messages');
     
     // Remove welcome message if exists
@@ -405,7 +414,16 @@ function appendMessage(role, content, animate = true) {
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.textContent = role === 'user' ? 'U' : role === 'assistant' ? 'AI' : 'S';
+    
+    if (role === 'user') {
+        avatar.textContent = 'U';
+    } else if (role === 'assistant') {
+        // Use first 3 characters of model name
+        avatar.textContent = modelName ? modelName.substring(0, 3).toUpperCase() : 'AI';
+        if (modelName) avatar.title = modelName;
+    } else {
+        avatar.textContent = 'S';
+    }
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -591,7 +609,9 @@ function createStreamingMessage() {
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.textContent = 'AI';
+    const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
+    avatar.textContent = modelName.substring(0, 3).toUpperCase();
+    avatar.title = modelName;
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -951,7 +971,9 @@ function showTypingIndicator() {
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.textContent = 'AI';
+    const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
+    avatar.textContent = modelName.substring(0, 3).toUpperCase();
+    avatar.title = modelName;
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
