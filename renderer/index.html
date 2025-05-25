@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://openrouter.ai">
+    <title>LLM UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Conversations</h2>
+                <button id="new-conversation-btn" class="icon-btn" title="New Conversation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="conversation-list" class="conversation-list">
+                <!-- Conversation history will be loaded here -->
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content">
+            <div class="chat-header">
+                <h1 id="conversation-title">New Conversation</h1>
+                <div class="header-actions">
+                    <select id="system-prompt-selector" class="model-selector" title="System Prompt">
+                        <!-- System prompts will be loaded here -->
+                    </select>
+                    <select id="model-selector" class="model-selector">
+                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="openai/gpt-4">GPT-4</option>
+                        <option value="anthropic/claude-2">Claude 2</option>
+                        <option value="anthropic/claude-instant-1">Claude Instant</option>
+                        <option value="google/palm-2-chat-bison">PaLM 2</option>
+                        <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
+                    </select>
+                    <button id="settings-btn" class="icon-btn" title="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3m16.24-6.36l-4.24 4.24m-6 6l-4.24 4.24m0-12.48l4.24 4.24m6 6l4.24 4.24"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be displayed here -->
+                <div class="welcome-message">
+                    <h2>Welcome to LLM UI</h2>
+                    <p>Start a conversation by typing a message below.</p>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea 
+                    id="message-input" 
+                    class="message-input" 
+                    placeholder="Type your message here..."
+                    rows="3"
+                    spellcheck="true"
+                ></textarea>
+                <button id="send-btn" class="send-btn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="api-key">OpenRouter API Key</label>
+                    <input type="password" id="api-key" class="setting-input" placeholder="Enter your API key">
+                    <small>Get your API key from <a href="#" onclick="window.electronAPI.openExternal('https://openrouter.ai'); return false;">OpenRouter</a></small>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="theme-select">Theme</label>
+                    <select id="theme-select" class="setting-input">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="font-size">Font Size</label>
+                    <input type="number" id="font-size" class="setting-input" min="10" max="24" value="14">
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="spell-check" checked>
+                        Enable spell checking
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="auto-save" checked>
+                        Auto-save conversations
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="search-engine">Search Engine</label>
+                    <select id="search-engine" class="setting-input">
+                        <option value="google">Google</option>
+                        <option value="kagi">Kagi</option>
+                        <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="bing">Bing</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label>System Prompts</label>
+                    <div id="system-prompts-container">
+                        <!-- System prompts will be loaded here -->
+                    </div>
+                    <button class="btn btn-secondary" id="add-prompt-btn">Add New Prompt</button>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="system-prompt-mode">System Prompt Mode</label>
+                    <select id="system-prompt-mode" class="setting-input">
+                        <option value="once">Send once at conversation start</option>
+                        <option value="always">Append to every message</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary">Cancel</button>
+                <button class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=LLM UI
+Comment=Electron app for LLM interactions with OpenRouter
+Exec=llm-ui %U
+Terminal=false
+Type=Application
+Icon=llm-ui
+StartupWMClass=LLM UI
+Categories=Development;Utility;
+MimeType=x-scheme-handler/llm-ui;
+StartupNotify=true
