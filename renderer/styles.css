@@ -763,6 +763,28 @@ body {
     padding: 4px 8px;
 }
 
+/* Web results override input */
+.web-results-override {
+    width: 80px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.web-results-override:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.web-results-override::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
 /* Model configuration styles */
 .model-selection-container {
     max-height: 300px;

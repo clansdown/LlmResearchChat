@@ -337,7 +337,8 @@ async function callOpenRouterStreaming(messages) {
                 plugins: settings.webSearchEnabled ? [{
                     id: "web",
                     settings: {
-                        max_results: settings.webMaxResults || 3
+                        max_results: document.getElementById('web-results-override').value || 
+                                    settings.webMaxResults || 3
                     }
                 }] : []
             }),
