@@ -176,9 +176,12 @@ function createNewConversation() {
         id: Date.now(),
         title: 'New Conversation',
         messages: [],
-        model: document.getElementById('model-selector').value,
+        model: settings.defaultModel, // Changed from dropdown value to settings default
         createdAt: new Date().toISOString()
     };
+    
+    // Update model selector to show default model
+    document.getElementById('model-selector').value = settings.defaultModel;
     
     document.getElementById('conversation-title').textContent = 'New Conversation';
     document.getElementById('chat-messages').innerHTML = `
