@@ -686,9 +686,9 @@ async function loadAvailableModels() {
 // Format pricing information
 function formatPricing(pricing) {
     if (!pricing) return 'Pricing unavailable';
-    const prompt = pricing.prompt ? `$${pricing.prompt}` : 'N/A';
-    const completion = pricing.completion ? `$${pricing.completion}` : 'N/A';
-    return `${prompt}/${completion} per 1M tokens`;
+    const prompt = pricing.prompt ? `$${pricing.prompt} per million prompt tokens` : 'N/A';
+    const completion = pricing.completion ? `$${pricing.completion} per million completion tokens` : 'N/A';
+    return `${prompt} • ${completion}`;
 }
 
 // Display system prompts in settings
