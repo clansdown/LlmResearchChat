@@ -139,6 +139,16 @@
                     </label>
                     <small>When enabled, models can access current web content</small>
                 </div>
+
+                <div class="setting-group">
+                    <label for="context-size">Context Size</label>
+                    <select id="context-size" class="setting-input">
+                        <option value="4096">Low (4k tokens)</option>
+                        <option value="8192">Medium (8k tokens)</option>
+                        <option value="16384">High (16k tokens)</option>
+                    </select>
+                    <small>Higher context allows longer conversations but costs more</small>
+                </div>
                 
                 <div class="setting-group">
                     <label for="search-engine">Search Engine</label>
