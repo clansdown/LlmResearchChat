@@ -142,6 +142,10 @@ function setupEventListeners() {
     // Add search button click handler
     const searchBtn = document.getElementById('search-btn');
     searchBtn.addEventListener('click', performSearch);
+    
+    // Add Wikipedia button click handler
+    const wikipediaBtn = document.getElementById('wikipedia-btn');
+    wikipediaBtn.addEventListener('click', performWikipediaSearch);
 }
 
 // Set up IPC listeners
@@ -813,7 +817,6 @@ function hideTypingIndicator() {
 
 // Add new handler functions
 function handleSelectionChange() {
-    const searchBtn = document.getElementById('search-btn');
     const selection = window.getSelection();
     const hasSelection = selection.toString().trim().length > 0;
     
@@ -821,7 +824,9 @@ function handleSelectionChange() {
     const chatMessages = document.getElementById('chat-messages');
     const selectionInChat = chatMessages.contains(selection.anchorNode);
     
-    searchBtn.disabled = !(hasSelection && selectionInChat);
+    const shouldEnable = hasSelection && selectionInChat;
+    document.getElementById('search-btn').disabled = !shouldEnable;
+    document.getElementById('wikipedia-btn').disabled = !shouldEnable;
 }
 
 function performSearch() {
@@ -848,6 +853,15 @@ function performSearch() {
             break;
     }
 
+    window.electronAPI.openExternal(url);
+}
+
+function performWikipediaSearch() {
+    const selection = window.getSelection().toString().trim();
+    if (!selection) return;
+
+    const query = encodeURIComponent(selection);
+    const url = `https://en.wikipedia.org/wiki/Special:Search?search=${query}`;
     window.electronAPI.openExternal(url);
 }
 
