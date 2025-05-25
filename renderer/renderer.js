@@ -687,16 +687,15 @@ async function loadAvailableModels() {
 function formatPricing(pricing) {
     if (!pricing) return 'Pricing unavailable';
     
-    // Convert price per token to price per million tokens
     const prompt = pricing.prompt ? 
-        `$${(pricing.prompt * 1000000).toFixed(2)} per million prompt tokens` : 
+        `$${(pricing.prompt * 1000000).toFixed(2)}` : 
         'N/A';
         
     const completion = pricing.completion ? 
-        `$${(pricing.completion * 1000000).toFixed(2)} per million completion tokens` : 
+        `$${(pricing.completion * 1000000).toFixed(2)}` : 
         'N/A';
         
-    return `${prompt} • ${completion}`;
+    return `In:${prompt} Out:${completion}`;
 }
 
 // Display system prompts in settings
