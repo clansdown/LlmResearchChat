@@ -242,7 +242,7 @@ body {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: flex-end;
 }
 
@@ -281,6 +281,29 @@ body {
 }
 
 .send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.search-btn {
+    padding: 12px;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.search-btn:hover:not(:disabled) {
+    background-color: var(--border-color);
+}
+
+.search-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }

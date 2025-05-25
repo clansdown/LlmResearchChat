@@ -135,6 +135,13 @@ function setupEventListeners() {
         settings.activeSystemPromptId = e.target.value;
         window.electronAPI.saveSettings({ activeSystemPromptId: e.target.value });
     });
+    
+    // Add selection change listener
+    document.addEventListener('selectionchange', handleSelectionChange);
+    
+    // Add search button click handler
+    const searchBtn = document.getElementById('search-btn');
+    searchBtn.addEventListener('click', performSearch);
 }
 
 // Set up IPC listeners
@@ -173,6 +180,9 @@ function createNewConversation() {
             <p>Start a conversation by typing a message below.</p>
         </div>
     `;
+    
+    // Clear selection
+    window.getSelection().removeAllRanges();
     
     updateConversationList();
 }
@@ -799,6 +809,46 @@ function hideTypingIndicator() {
     if (typingIndicator) {
         typingIndicator.remove();
     }
+}
+
+// Add new handler functions
+function handleSelectionChange() {
+    const searchBtn = document.getElementById('search-btn');
+    const selection = window.getSelection();
+    const hasSelection = selection.toString().trim().length > 0;
+    
+    // Only enable if selection is in chat messages
+    const chatMessages = document.getElementById('chat-messages');
+    const selectionInChat = chatMessages.contains(selection.anchorNode);
+    
+    searchBtn.disabled = !(hasSelection && selectionInChat);
+}
+
+function performSearch() {
+    const selection = window.getSelection().toString().trim();
+    if (!selection) return;
+
+    const searchEngine = settings.searchEngine || 'google';
+    const query = encodeURIComponent(selection);
+    let url;
+
+    switch (searchEngine) {
+        case 'kagi':
+            url = `https://kagi.com/search?q=${query}`;
+            break;
+        case 'duckduckgo':
+            url = `https://duckduckgo.com/?q=${query}`;
+            break;
+        case 'bing':
+            url = `https://www.bing.com/search?q=${query}`;
+            break;
+        case 'google':
+        default:
+            url = `https://www.google.com/search?q=${query}`;
+            break;
+    }
+
+    window.electronAPI.openExternal(url);
 }
 
 // Make functions globally available
