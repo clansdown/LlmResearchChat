@@ -854,8 +854,10 @@ function filterModels(query, models) {
     container.innerHTML = '';
     
     models.forEach(model => {
-        const matches = model.name.toLowerCase().includes(query) ||
-                        model.provider.toLowerCase().includes(query) ||
+        // Get the displayed text including pricing
+        const displayedText = `${model.name} ${model.provider} ${formatPricing(model.pricing)}`.toLowerCase();
+        
+        const matches = displayedText.includes(query) ||
                         (model.description && model.description.toLowerCase().includes(query));
         
         if (matches) {
