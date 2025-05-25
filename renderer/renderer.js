@@ -64,6 +64,7 @@ function applySettings() {
     document.getElementById('spell-check').checked = settings.spellCheck;
     document.getElementById('auto-save').checked = settings.autoSave;
     document.getElementById('web-search-enabled').checked = settings.webSearchEnabled !== false;
+    document.getElementById('web-max-results').value = settings.webMaxResults || 3;
     document.getElementById('context-size').value = settings.contextSize || '8192';
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
