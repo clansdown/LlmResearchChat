@@ -63,6 +63,7 @@ function applySettings() {
     document.getElementById('font-size').value = settings.fontSize;
     document.getElementById('spell-check').checked = settings.spellCheck;
     document.getElementById('auto-save').checked = settings.autoSave;
+    document.getElementById('web-search-enabled').checked = settings.webSearchEnabled !== false;
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
     
@@ -330,7 +331,8 @@ async function callOpenRouterStreaming(messages) {
                 model: currentConversation.model,
                 messages: messages,
                 stream: true,
-                max_tokens: 2048
+                max_tokens: 2048,
+                transforms: settings.webSearchEnabled ? ["web_search"] : []
             }),
             signal: abortController.signal
         });
@@ -556,6 +558,7 @@ async function saveSettings() {
         fontSize: parseInt(document.getElementById('font-size').value),
         spellCheck: document.getElementById('spell-check').checked,
         autoSave: document.getElementById('auto-save').checked,
+        webSearchEnabled: document.getElementById('web-search-enabled').checked,
         searchEngine: document.getElementById('search-engine').value,
         systemPromptMode: document.getElementById('system-prompt-mode').value,
         systemPrompts: settings.systemPrompts,

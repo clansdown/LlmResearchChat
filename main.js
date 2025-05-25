@@ -22,6 +22,7 @@ const store = new Store({
     fontSize: 14,
     spellCheck: true,
     autoSave: true,
+    webSearchEnabled: true,
     searchEngine: 'google',
     systemPrompts: [
       {
