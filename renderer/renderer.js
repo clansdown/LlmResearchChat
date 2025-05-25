@@ -241,6 +241,12 @@ async function sendMessage() {
     messageInput.value = '';
     updateSendButton();
     
+    // Add to history immediately after first message
+    if (currentConversation.messages.length === 1) {
+        await window.electronAPI.addToHistory(currentConversation);
+        await loadConversationHistory();
+    }
+    
     // Show typing indicator and stop button
     showTypingIndicator();
     isTyping = true;
