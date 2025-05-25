@@ -824,7 +824,8 @@ async function displayModelConfiguration(models) {
         // Default model options
         const option = document.createElement('option');
         option.value = model.id;
-        option.textContent = model.name;
+        option.textContent = `${model.name} (${formatPricing(model.pricing)})`;
+        option.title = `${model.description}\nProvider: ${model.provider}`;
         defaultSelector.appendChild(option);
     });
 
