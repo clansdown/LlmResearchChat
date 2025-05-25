@@ -446,22 +446,36 @@ function appendMessage(role, content, animate = true, modelName = null) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
     
-    // Parse markdown-like formatting and links
-    content = escapeHtml(content);
-    content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
-    content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
-    content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" class="external-link">$1</a>');
-    content = content.replace(/\n/g, '<br>');
-    
-    contentDiv.innerHTML = content;
-    
+    // Parse annotations and extract links
+    const linkData = extractLinks(content);
+    let formattedContent = linkData.content;
+    const links = linkData.links;
+
+    // Format main content
+    formattedContent = escapeHtml(formattedContent);
+    formattedContent = formattedContent.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    formattedContent = formattedContent.replace(/`([^`]+)`/g, '<code>$1</code>');
+    formattedContent = formattedContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    formattedContent = formattedContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    formattedContent = formattedContent.replace(/\n/g, '<br>');
+
+    // Add links section if any were found
+    if (links.length > 0) {
+        formattedContent += `<div class="message-links">
+            <div class="links-title">References:</div>
+            ${links.map((link, index) => 
+                `<a href="#" class="message-link" data-url="${link.url}">[${index + 1}] ${link.text || link.url}</a>`
+            ).join('')}
+        </div>`;
+    }
+
+    contentDiv.innerHTML = formattedContent;
+
     // Add click handlers for links
-    contentDiv.querySelectorAll('a.external-link').forEach(link => {
+    contentDiv.querySelectorAll('a.message-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            window.electronAPI.openExternal(link.href);
+            window.electronAPI.openExternal(link.dataset.url);
         });
     });
     
@@ -650,22 +664,36 @@ function createStreamingMessage() {
 
 // Update streaming message
 function updateStreamingMessage(element, content) {
-    // Parse markdown and links
-    let formattedContent = escapeHtml(content);
+    // Parse annotations and extract links
+    const linkData = extractLinks(content);
+    let formattedContent = linkData.content;
+    const links = linkData.links;
+
+    // Format main content
+    formattedContent = escapeHtml(formattedContent);
     formattedContent = formattedContent.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
     formattedContent = formattedContent.replace(/`([^`]+)`/g, '<code>$1</code>');
     formattedContent = formattedContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     formattedContent = formattedContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" class="external-link">$1</a>');
     formattedContent = formattedContent.replace(/\n/g, '<br>');
+
+    // Add links section if any were found
+    if (links.length > 0) {
+        formattedContent += `<div class="message-links">
+            <div class="links-title">References:</div>
+            ${links.map((link, index) => 
+                `<a href="#" class="message-link" data-url="${link.url}">[${index + 1}] ${link.text || link.url}</a>`
+            ).join('')}
+        </div>`;
+    }
     
     element.innerHTML = formattedContent + '<span class="cursor-blink">▋</span>';
     
     // Add click handlers for links
-    element.querySelectorAll('a.external-link').forEach(link => {
+    element.querySelectorAll('a.message-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            window.electronAPI.openExternal(link.href);
+            window.electronAPI.openExternal(link.dataset.url);
         });
     });
     
@@ -1077,6 +1105,41 @@ window.updateSystemPromptName = updateSystemPromptName;
 window.updateSystemPromptContent = updateSystemPromptContent;
 window.setDefaultSystemPrompt = setDefaultSystemPrompt;
 window.deleteSystemPrompt = deleteSystemPrompt;
+
+// Add link extraction function
+function extractLinks(content) {
+    const linkRegex = /\[([^\]]+)\]\(((?:https?:\/\/)[^\)]+)\)/g;
+    const links = [];
+    let cleanContent = content;
+    
+    // Extract markdown-style links
+    let match;
+    while ((match = linkRegex.exec(content)) !== null) {
+        links.push({
+            text: match[1],
+            url: match[2]
+        });
+        cleanContent = cleanContent.replace(match[0], match[1]); // Replace with just the text
+    }
+
+    // Extract bare URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    let urlMatch;
+    while ((urlMatch = urlRegex.exec(cleanContent)) !== null) {
+        links.push({
+            url: urlMatch[1],
+            text: null
+        });
+    }
+    
+    // Remove URLs from main content since they'll be in the references
+    cleanContent = cleanContent.replace(urlRegex, '');
+
+    return {
+        content: cleanContent,
+        links: links.filter((v, i, a) => a.findIndex(t => t.url === v.url) === i) // Dedupe
+    };
+}
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', init);
