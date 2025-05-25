@@ -451,6 +451,7 @@ async function loadConversationHistory() {
         const div = document.createElement('div');
         div.className = 'conversation-item';
         div.dataset.id = item.id;
+        div.dataset.conversation = JSON.stringify(item); // Store full data
         
         div.innerHTML = `
             <h3>${escapeHtml(item.title)}</h3>
@@ -458,8 +459,8 @@ async function loadConversationHistory() {
         `;
         
         div.addEventListener('click', () => {
-            // Load the full conversation (would need to implement storage)
-            console.log('Load conversation:', item.id);
+            const conversation = JSON.parse(div.dataset.conversation);
+            loadConversation(conversation);
         });
         
         conversationList.appendChild(div);

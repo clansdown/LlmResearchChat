@@ -250,13 +250,15 @@ ipcMain.handle('get-conversation-history', () => {
 
 ipcMain.handle('add-to-history', (event, conversation) => {
   const history = store.get('conversationHistory', []);
-  history.unshift({
-    id: Date.now(),
+  const historyItem = {
+    id: conversation.id || Date.now(),
     title: conversation.title || 'Untitled Conversation',
-    date: new Date().toISOString(),
+    createdAt: conversation.createdAt || new Date().toISOString(),
+    messages: conversation.messages || [],
+    model: conversation.model || 'openai/gpt-3.5-turbo',
     preview: conversation.messages[0]?.content.substring(0, 100) || ''
-  });
-  // Keep only last 50 conversations
+  };
+  history.unshift(historyItem);
   store.set('conversationHistory', history.slice(0, 50));
   return true;
 });
