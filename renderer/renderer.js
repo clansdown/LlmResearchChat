@@ -529,10 +529,10 @@ async function saveSettings() {
         fontSize: parseInt(document.getElementById('font-size').value),
         spellCheck: document.getElementById('spell-check').checked,
         autoSave: document.getElementById('auto-save').checked,
-        defaultModel: settings.defaultModel,
         searchEngine: document.getElementById('search-engine').value,
         systemPromptMode: document.getElementById('system-prompt-mode').value,
         systemPrompts: settings.systemPrompts,
+        defaultModel: document.getElementById('default-model-select').value,
         selectedModels: settings.selectedModels
     };
     
