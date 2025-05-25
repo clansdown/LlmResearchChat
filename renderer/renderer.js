@@ -66,6 +66,7 @@ function applySettings() {
     document.getElementById('web-search-enabled').checked = settings.webSearchEnabled !== false;
     document.getElementById('web-max-results').value = settings.webMaxResults || 3;
     document.getElementById('context-size').value = settings.contextSize || '8192';
+    document.getElementById('context-size-override').value = settings.contextSize || '8192';
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
     
@@ -333,7 +334,8 @@ async function callOpenRouterStreaming(messages) {
                 model: currentConversation.model,
                 messages: messages,
                 stream: true,
-                max_tokens: parseInt(settings.contextSize) || 8192,
+                max_tokens: parseInt(document.getElementById('context-size-override').value) || 
+                           parseInt(settings.contextSize) || 8192,
                 plugins: settings.webSearchEnabled ? [{
                     id: "web",
                     settings: {

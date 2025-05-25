@@ -53,6 +53,11 @@
                     </select>
                 </div>
                 <div class="toolbar-section">
+                    <select id="context-size-override" class="toolbar-selector" title="Temporary context size override">
+                        <option value="4096">Low Context</option>
+                        <option value="8192">Medium Context</option>
+                        <option value="16384">High Context</option>
+                    </select>
                     <input type="number" id="web-results-override" class="web-results-override" 
                            min="1" max="10" placeholder="Results" title="Temporary override for web results count">
                     <button id="wikipedia-btn" class="toolbar-btn" disabled title="Search Wikipedia">
