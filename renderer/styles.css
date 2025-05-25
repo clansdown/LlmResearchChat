@@ -707,6 +707,17 @@ body {
     cursor: pointer;
 }
 
+/* Web search settings */
+.web-search-settings {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.web-search-settings .setting-input {
+    padding: 4px 8px;
+}
+
 /* Model configuration styles */
 .model-selection-container {
     max-height: 300px;

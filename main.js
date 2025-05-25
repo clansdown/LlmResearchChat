@@ -23,6 +23,7 @@ const store = new Store({
     spellCheck: true,
     autoSave: true,
     webSearchEnabled: true,
+    webMaxResults: 3,
     contextSize: '8192',
     searchEngine: 'google',
     systemPrompts: [

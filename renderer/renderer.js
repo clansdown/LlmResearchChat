@@ -333,7 +333,12 @@ async function callOpenRouterStreaming(messages) {
                 messages: messages,
                 stream: true,
                 max_tokens: parseInt(settings.contextSize) || 8192,
-                transforms: settings.webSearchEnabled ? ["web_search"] : []
+                plugins: settings.webSearchEnabled ? [{
+                    id: "web",
+                    settings: {
+                        max_results: settings.webMaxResults || 3
+                    }
+                }] : []
             }),
             signal: abortController.signal
         });
@@ -560,6 +565,7 @@ async function saveSettings() {
         spellCheck: document.getElementById('spell-check').checked,
         autoSave: document.getElementById('auto-save').checked,
         webSearchEnabled: document.getElementById('web-search-enabled').checked,
+        webMaxResults: parseInt(document.getElementById('web-max-results').value) || 3,
         contextSize: document.getElementById('context-size').value,
         searchEngine: document.getElementById('search-engine').value,
         systemPromptMode: document.getElementById('system-prompt-mode').value,
