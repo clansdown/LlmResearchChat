@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveConversation: (conversation) => ipcRenderer.invoke('save-conversation', conversation),
   getConversationHistory: () => ipcRenderer.invoke('get-conversation-history'),
   addToHistory: (conversation) => ipcRenderer.invoke('add-to-history', conversation),
+  loadConversationFile: (id) => ipcRenderer.invoke('load-conversation-file', id),
   
   // Event listeners
   onNewConversation: (callback) => ipcRenderer.on('new-conversation', callback),

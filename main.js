@@ -4,6 +4,14 @@ const fs = require('fs').promises;
 const Store = require('electron-store');
 const contextMenu = require('electron-context-menu');
 
+// Create conversation storage directory path
+const getConversationsDir = () => path.join(app.getPath('userData'), 'conversations');
+
+// Helper function to ensure directory exists
+const ensureConversationsDir = async () => {
+  await fs.mkdir(getConversationsDir(), { recursive: true });
+};
+
 // Initialize settings store
 const store = new Store({
   defaults: {
@@ -13,7 +21,6 @@ const store = new Store({
     fontSize: 14,
     spellCheck: true,
     autoSave: true,
-    conversationHistory: [],
     searchEngine: 'google',
     systemPrompts: [
       {
@@ -244,23 +251,47 @@ ipcMain.handle('save-conversation', async (event, conversation) => {
   return { success: false };
 });
 
-ipcMain.handle('get-conversation-history', () => {
-  return store.get('conversationHistory', []);
+ipcMain.handle('get-conversation-history', async () => {
+  await ensureConversationsDir();
+  const dir = getConversationsDir();
+  const files = await fs.readdir(dir);
+  const history = [];
+
+  for (const file of files) {
+    if (file.endsWith('.json')) {
+      try {
+        const content = await fs.readFile(path.join(dir, file), 'utf8');
+        const { id, title, preview, createdAt, model } = JSON.parse(content);
+        history.push({ id, title, preview, createdAt, model });
+      } catch (e) {
+        console.error('Error loading conversation file:', file, e);
+      }
+    }
+  }
+
+  return history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
 
-ipcMain.handle('add-to-history', (event, conversation) => {
-  const history = store.get('conversationHistory', []);
-  const historyItem = {
-    id: conversation.id || Date.now(),
-    title: conversation.title || 'Untitled Conversation',
-    createdAt: conversation.createdAt || new Date().toISOString(),
-    messages: conversation.messages || [],
-    model: conversation.model || 'openai/gpt-3.5-turbo',
+ipcMain.handle('add-to-history', async (event, conversation) => {
+  await ensureConversationsDir();
+  const convPath = path.join(getConversationsDir(), `${conversation.id}.json`);
+  const data = {
+    ...conversation,
     preview: conversation.messages[0]?.content.substring(0, 100) || ''
   };
-  history.unshift(historyItem);
-  store.set('conversationHistory', history.slice(0, 50));
+  await fs.writeFile(convPath, JSON.stringify(data, null, 2));
   return true;
+});
+
+ipcMain.handle('load-conversation-file', async (event, id) => {
+  const convPath = path.join(getConversationsDir(), `${id}.json`);
+  try {
+    const content = await fs.readFile(convPath, 'utf8');
+    return JSON.parse(content);
+  } catch (e) {
+    console.error('Error loading conversation:', id, e);
+    return null;
+  }
 });
 
 // App event handlers

@@ -178,17 +178,22 @@ function createNewConversation() {
 }
 
 // Load a conversation
-function loadConversation(conversation) {
-    currentConversation = conversation;
-    document.getElementById('conversation-title').textContent = conversation.title;
-    document.getElementById('model-selector').value = conversation.model;
+async function loadConversation(conversationItem) {
+    const fullConversation = await window.electronAPI.loadConversationFile(conversationItem.id);
+    if (!fullConversation) return;
+
+    currentConversation = fullConversation;
+    document.getElementById('conversation-title').textContent = currentConversation.title;
+    document.getElementById('model-selector').value = currentConversation.model;
     
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = '';
     
-    conversation.messages.forEach(msg => {
+    currentConversation.messages.forEach(msg => {
         appendMessage(msg.role, msg.content, false);
     });
+    
+    updateConversationList();
 }
 
 // Send a message
@@ -459,8 +464,7 @@ async function loadConversationHistory() {
         `;
         
         div.addEventListener('click', () => {
-            const conversation = JSON.parse(div.dataset.conversation);
-            loadConversation(conversation);
+            loadConversation(item);
         });
         
         conversationList.appendChild(div);
