@@ -676,6 +676,37 @@ body {
     background-color: #cc0000;
 }
 
+/* Model Configuration Styles */
+.model-config-section {
+    margin-bottom: 1.5rem;
+}
+
+.model-selection-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.model-selection-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.model-selection-item:last-child {
+    border-bottom: none;
+}
+
+.model-selection-item label {
+    flex: 1;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
 /* Model configuration styles */
 .model-selection-container {
     max-height: 300px;
