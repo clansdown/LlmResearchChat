@@ -835,7 +835,12 @@ async function displayModelConfiguration(models) {
         div.appendChild(checkbox);
         div.appendChild(label);
         container.appendChild(div);
+    });
 
+    // Filter models to only those that are selected for default model dropdown
+    const enabledModels = models.filter(m => (settings.selectedModels || []).includes(m.id));
+
+    enabledModels.forEach(model => {
         // Default model options
         const option = document.createElement('option');
         option.value = model.id;
