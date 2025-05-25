@@ -29,17 +29,6 @@
             <div class="chat-header">
                 <h1 id="conversation-title">New Conversation</h1>
                 <div class="header-actions">
-                    <select id="system-prompt-selector" class="model-selector" title="System Prompt">
-                        <!-- System prompts will be loaded here -->
-                    </select>
-                    <select id="model-selector" class="model-selector">
-                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                        <option value="openai/gpt-4">GPT-4</option>
-                        <option value="anthropic/claude-2">Claude 2</option>
-                        <option value="anthropic/claude-instant-1">Claude Instant</option>
-                        <option value="google/palm-2-chat-bison">PaLM 2</option>
-                        <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
-                    </select>
                     <button id="settings-btn" class="icon-btn" title="Settings">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="3"/>
@@ -50,7 +39,20 @@
             </div>
 
             <div class="chat-toolbar">
-                <div class="toolbar-buttons">
+                <div class="toolbar-section">
+                    <select id="system-prompt-selector" class="toolbar-selector" title="System Prompt">
+                        <!-- System prompts will be loaded here -->
+                    </select>
+                    <select id="model-selector" class="toolbar-selector">
+                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="openai/gpt-4">GPT-4</option>
+                        <option value="anthropic/claude-2">Claude 2</option>
+                        <option value="anthropic/claude-instant-1">Claude Instant</option>
+                        <option value="google/palm-2-chat-bison">PaLM 2</option>
+                        <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
                     <button id="wikipedia-btn" class="toolbar-btn" disabled title="Search Wikipedia">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>

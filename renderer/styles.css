@@ -167,7 +167,24 @@ body {
     align-items: center;
 }
 
-.model-selector {
+
+/* Chat Toolbar */
+.chat-toolbar {
+    padding: 8px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.toolbar-section {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.toolbar-selector {
     padding: 6px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -175,19 +192,17 @@ body {
     color: var(--text-primary);
     font-size: 14px;
     cursor: pointer;
+    height: 32px;
 }
 
-/* Chat Toolbar */
-.chat-toolbar {
-    padding: 8px 24px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
+.toolbar-selector:hover {
+    background-color: var(--bg-tertiary);
 }
 
-.toolbar-buttons {
-    display: flex;
-    gap: 8px;
+.toolbar-selector:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 }
 
 .toolbar-btn {
