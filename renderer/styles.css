@@ -765,3 +765,28 @@ body {
 .model-config-section {
     margin-bottom: 16px;
 }
+
+/* Message links */
+.message-links {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9em;
+}
+
+.links-title {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.message-link {
+    display: block;
+    color: var(--accent-color);
+    text-decoration: none;
+    margin: 0.25rem 0;
+    word-break: break-all;
+}
+
+.message-link:hover {
+    text-decoration: underline;
+}
