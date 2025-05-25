@@ -526,12 +526,29 @@ async function loadConversationHistory() {
         div.dataset.conversation = JSON.stringify(item); // Store full data
         
         div.innerHTML = `
-            <h3>${escapeHtml(item.title)}</h3>
+            <div class="conversation-item-header">
+                <h3>${escapeHtml(item.title)}</h3>
+                <button class="delete-conversation-btn" title="Delete conversation">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2 2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+                    </svg>
+                </button>
+            </div>
             <p>${escapeHtml(item.preview)}</p>
         `;
         
-        div.addEventListener('click', () => {
-            loadConversation(item);
+        // Load conversation when clicked
+        div.addEventListener('click', (e) => {
+            if (!e.target.closest('.delete-conversation-btn')) {
+                loadConversation(item);
+            }
+        });
+        
+        // Add delete handler
+        const deleteBtn = div.querySelector('.delete-conversation-btn');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteConversation(item.id);
         });
         
         conversationList.appendChild(div);
@@ -1095,6 +1112,20 @@ function performWikipediaSearch() {
     const query = encodeURIComponent(selection);
     const url = `https://en.wikipedia.org/wiki/Special:Search?search=${query}`;
     window.electronAPI.openExternal(url);
+}
+
+// Add delete conversation function
+async function deleteConversation(id) {
+    const result = await window.electronAPI.deleteConversation(id);
+    
+    if (result.success) {
+        // If deleted conversation was current, clear view
+        if (currentConversation.id === id) {
+            createNewConversation();
+        }
+        // Reload history list
+        await loadConversationHistory();
+    }
 }
 
 // Make functions globally available

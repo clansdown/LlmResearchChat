@@ -29,5 +29,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getSpellcheckSuggestions: (word) => ipcRenderer.invoke('get-spellcheck-suggestions', word),
   
   // Models
-  getAvailableModels: () => ipcRenderer.invoke('get-available-models')
+  getAvailableModels: () => ipcRenderer.invoke('get-available-models'),
+  
+  // Delete conversation
+  deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id)
 });

@@ -90,13 +90,43 @@ body {
     color: white;
 }
 
+/* Conversation item delete button */
+.conversation-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
 .conversation-item h3 {
     font-size: 14px;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex: 1;
+}
+
+.delete-conversation-btn {
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.conversation-item:hover .delete-conversation-btn {
+    opacity: 1;
+}
+
+.delete-conversation-btn:hover {
+    color: #ff4444;
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
 }
 
 .conversation-item p {

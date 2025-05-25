@@ -354,6 +354,31 @@ ipcMain.handle('get-available-models', async () => {
   }
 });
 
+ipcMain.handle('delete-conversation', async (event, id) => {
+  const convPath = path.join(getConversationsDir(), `${id}.json`);
+  
+  try {
+    // Confirm deletion
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: ['Cancel', 'Delete'],
+      defaultId: 1,
+      title: 'Delete Conversation',
+      message: 'Are you sure you want to delete this conversation?',
+      detail: 'This action cannot be undone.'
+    });
+    
+    if (result.response === 1) { // Delete confirmed
+      await fs.unlink(convPath);
+      return { success: true };
+    }
+    return { success: false };
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Add new helper functions
 function saveWindowBounds() {
   if (!mainWindow.isMaximized() && !mainWindow.isMinimized() && mainWindow.isVisible()) {
