@@ -803,10 +803,16 @@ function deleteSystemPrompt(id) {
 async function displayModelConfiguration(models) {
     const container = document.getElementById('model-selection-list');
     const defaultSelector = document.getElementById('default-model-select');
+    const searchInput = document.getElementById('model-search');
     
     // Clear existing elements
     container.innerHTML = '';
     defaultSelector.innerHTML = '';
+
+    // Add search input handler
+    searchInput.addEventListener('input', (e) => {
+        filterModels(e.target.value.toLowerCase(), models);
+    });
 
     models.forEach(model => {
         // Model selection checkboxes
@@ -839,6 +845,38 @@ async function displayModelConfiguration(models) {
     defaultSelector.value = settings.defaultModel;
     defaultSelector.addEventListener('change', (e) => {
         settings.defaultModel = e.target.value;
+    });
+}
+
+// Filter models based on search query
+function filterModels(query, models) {
+    const container = document.getElementById('model-selection-list');
+    container.innerHTML = '';
+    
+    models.forEach(model => {
+        const matches = model.name.toLowerCase().includes(query) ||
+                        model.provider.toLowerCase().includes(query) ||
+                        (model.description && model.description.toLowerCase().includes(query));
+        
+        if (matches) {
+            const div = document.createElement('div');
+            div.className = 'model-selection-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `model-${model.id}`;
+            checkbox.checked = settings.selectedModels.includes(model.id);
+            checkbox.addEventListener('change', () => toggleModelSelection(model.id));
+            
+            const label = document.createElement('label');
+            label.htmlFor = `model-${model.id}`;
+            label.textContent = `${model.name} (${model.provider})`;
+            label.title = model.description;
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        }
     });
 }
 
