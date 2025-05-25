@@ -40,7 +40,13 @@ const store = new Store({
       'anthropic/claude-instant-1',
       'google/palm-2-chat-bison',
       'meta-llama/llama-2-70b-chat'
-    ]
+    ],
+    windowBounds: {
+      x: undefined,
+      y: undefined,
+      width: 1200,
+      height: 800
+    }
   }
 });
 
@@ -48,9 +54,13 @@ let mainWindow;
 let isDev = process.argv.includes('--dev');
 
 function createWindow() {
+  const storedBounds = store.get('windowBounds');
+  
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    x: storedBounds.x,
+    y: storedBounds.y,
+    width: storedBounds.width,
+    height: storedBounds.height,
     show: false, // Don't show until ready
     webPreferences: {
       nodeIntegration: false,
@@ -76,6 +86,11 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // Add resize handler
+  mainWindow.on('resize', debounce(saveWindowBounds, 500));
+  mainWindow.on('move', debounce(saveWindowBounds, 500));
+  mainWindow.on('close', saveWindowBounds);
 
   // Create application menu
   createMenu();
@@ -335,6 +350,27 @@ ipcMain.handle('get-available-models', async () => {
     return cachedModels?.data || [];
   }
 });
+
+// Add new helper functions
+function saveWindowBounds() {
+  if (!mainWindow.isMaximized() && !mainWindow.isMinimized() && mainWindow.isVisible()) {
+    const bounds = mainWindow.getNormalBounds();
+    store.set('windowBounds', {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height
+    });
+  }
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
 
 // App event handlers
 app.whenReady().then(() => {
