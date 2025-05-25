@@ -388,7 +388,7 @@ body {
     background-color: var(--bg-primary);
     border-radius: 12px;
     width: 90%;
-    max-width: 500px;
+    max-width: 650px;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
