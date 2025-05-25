@@ -684,7 +684,7 @@ async function loadAvailableModels() {
 }
 
 // Format pricing information
-function formatPricing(pricing) {
+function formatPricing(pricing, verbose = false) {
     if (!pricing) return 'Pricing unavailable';
     
     const prompt = pricing.prompt ? 
@@ -695,7 +695,9 @@ function formatPricing(pricing) {
         `$${(pricing.completion * 1000000).toFixed(2)}` : 
         'N/A';
         
-    return `In:${prompt} Out:${completion}`;
+    return verbose ? 
+        `Input: ${prompt} per million tokens\nOutput: ${completion} per million tokens` :
+        `In:${prompt} Out:${completion}`;
 }
 
 // Display system prompts in settings
@@ -827,8 +829,8 @@ async function displayModelConfiguration(models) {
         
         const label = document.createElement('label');
         label.htmlFor = `model-${model.id}`;
-        label.textContent = `${model.name} (${model.provider})`;
-        label.title = model.description;
+        label.textContent = `${model.name} (${model.provider}) ${formatPricing(model.pricing)}`;
+        label.title = `${model.description}\n${formatPricing(model.pricing, true)}`;
         
         div.appendChild(checkbox);
         div.appendChild(label);
@@ -872,8 +874,8 @@ function filterModels(query, models) {
             
             const label = document.createElement('label');
             label.htmlFor = `model-${model.id}`;
-            label.textContent = `${model.name} (${model.provider})`;
-            label.title = model.description;
+            label.textContent = `${model.name} (${model.provider}) ${formatPricing(model.pricing)}`;
+            label.title = `${model.description}\n${formatPricing(model.pricing, true)}`;
             
             div.appendChild(checkbox);
             div.appendChild(label);
