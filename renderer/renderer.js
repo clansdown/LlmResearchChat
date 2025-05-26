@@ -254,6 +254,7 @@ async function sendMessage() {
     // Show typing indicator and stop button
     showTypingIndicator();
     isTyping = true;
+    updateSendButton(); // Update button to stop state
     
     try {
         // Prepare messages with system prompt
@@ -274,7 +275,7 @@ async function sendMessage() {
         hideTypingIndicator();
         isTyping = false;
         abortController = null;
-        updateSendButton();
+        updateSendButton(); // Revert to normal send button
         
         // Auto-save if enabled
         if (settings.autoSave && currentConversation.messages.length > 0) {
@@ -998,21 +999,26 @@ function updateSendButton() {
     const sendBtn = document.getElementById('send-btn');
     
     if (isTyping) {
-        sendBtn.disabled = false;
+        // Show stop button style
+        sendBtn.classList.add('stop');
         sendBtn.innerHTML = `
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="6" y="6" width="12" height="12"/>
             </svg>
         `;
         sendBtn.onclick = stopGeneration;
+        sendBtn.disabled = false; // Always enabled during streaming
     } else {
-        sendBtn.disabled = !messageInput.value.trim();
+        // Show normal send button style
+        sendBtn.classList.remove('stop');
         sendBtn.innerHTML = `
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
             </svg>
         `;
         sendBtn.onclick = sendMessage;
+        // Only disable if input is empty when not streaming
+        sendBtn.disabled = !messageInput.value.trim();
     }
 }
 
@@ -1020,6 +1026,8 @@ function updateSendButton() {
 function stopGeneration() {
     if (abortController) {
         abortController.abort();
+        isTyping = false;
+        updateSendButton();
     }
 }
 
