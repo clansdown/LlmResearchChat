@@ -304,6 +304,7 @@ ipcMain.handle('add-to-history', async (event, conversation) => {
   const convPath = path.join(getConversationsDir(), `${conversation.id}.json`);
   const data = {
     ...conversation,
+    model: conversation.model || 'openai/gpt-3.5-turbo', // Ensure model exists
     preview: conversation.messages[0]?.content.substring(0, 100) || ''
   };
   await fs.writeFile(convPath, JSON.stringify(data, null, 2));

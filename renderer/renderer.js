@@ -141,6 +141,10 @@ function setupEventListeners() {
     // Model selector
     modelSelector.addEventListener('change', (e) => {
         currentConversation.model = e.target.value;
+        // Immediately update the conversation in history if it exists
+        if (currentConversation.messages.length > 0) {
+            window.electronAPI.addToHistory(currentConversation);
+        }
     });
     
     // System prompt selector
@@ -267,6 +271,9 @@ async function sendMessage() {
     // Clear input
     messageInput.value = '';
     updateSendButton();
+    
+    // Ensure model is current
+    currentConversation.model = document.getElementById('model-selector').value;
     
     // Add to history immediately after first message
     if (currentConversation.messages.length === 1) {
