@@ -456,15 +456,21 @@ async function callOpenRouterStreaming(messages) {
         throw new Error(`Network error: ${fetchError.message}`);
     }
     
+    // After stream completes, fetch full generation data
+    let generationData = null;
+    if (latestGeneration?.id) {
+        generationData = await fetchGenerationData(latestGeneration.id);
+    }
+    
     // Add the complete message to conversation
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
-    const cost = latestGeneration?.total_cost || null;
+    const cost = generationData?.total_cost || latestGeneration?.total_cost || null;
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
         modelName: modelName,
         modelId: currentConversation.model,
-        generation: latestGeneration,
+        generation: generationData || latestGeneration, // Prefer generation API response
         cost: cost
     });
     
@@ -736,6 +742,25 @@ function highlightMisspelledWords() {
     const messageInput = document.getElementById('message-input');
     if (messageInput.value.trim()) {
         // Browser handles the actual spell checking
+    }
+}
+
+// Fetch generation data from OpenRouter Generation API
+async function fetchGenerationData(requestId) {
+    try {
+        const response = await fetch(`https://openrouter.ai/api/v1/generation/${requestId}`, {
+            headers: {
+                'Authorization': `Bearer ${settings.apiKey}`,
+                'HTTP-Referer': 'https://openrouter.ai',
+                'X-Title': 'LLM UI'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch generation data');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching generation data:', error);
+        return null;
     }
 }
 
