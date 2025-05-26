@@ -90,6 +90,28 @@ body {
     color: white;
 }
 
+/* Conversation search */
+.conversation-search {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.conversation-search:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.conversation-item.hidden {
+    display: none;
+}
+
 /* Conversation item delete button */
 .conversation-item-header {
     display: flex;

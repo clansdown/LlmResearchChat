@@ -166,6 +166,12 @@ function setupEventListeners() {
         const webEnabled = !webToggle.classList.contains('active');
         updateWebControlsState(webEnabled);
     });
+    
+    // Add conversation search handler
+    const conversationSearch = document.getElementById('conversation-search');
+    conversationSearch.addEventListener('input', (e) => {
+        filterConversations(e.target.value.toLowerCase());
+    });
 }
 
 // Set up IPC listeners
@@ -581,6 +587,12 @@ async function loadConversationHistory() {
     });
     
     updateConversationList();
+    
+    // Apply current search filter
+    const searchText = document.getElementById('conversation-search').value.toLowerCase();
+    if (searchText) {
+        filterConversations(searchText);
+    }
 }
 
 // Update conversation list to highlight current
@@ -1170,6 +1182,23 @@ function updateWebControlsState(enabled) {
     document.getElementById('context-size-override').disabled = !enabled;
     document.getElementById('web-results-override').disabled = !enabled;
     document.getElementById('web-toggle').classList.toggle('active', enabled);
+}
+
+// Filter conversations based on search text
+function filterConversations(searchText) {
+    const items = document.querySelectorAll('.conversation-item');
+    
+    items.forEach(item => {
+        const title = item.querySelector('h3').textContent.toLowerCase();
+        const preview = item.querySelector('p').textContent.toLowerCase();
+        const date = item.querySelector('.conversation-date').textContent.toLowerCase();
+        
+        const match = title.includes(searchText) || 
+                     preview.includes(searchText) || 
+                     date.includes(searchText);
+        
+        item.classList.toggle('hidden', !match);
+    });
 }
 
 // Make functions globally available
