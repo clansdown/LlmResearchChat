@@ -199,12 +199,13 @@ function createNewConversation() {
         id: Date.now(),
         title: 'New Conversation',
         messages: [],
-        model: settings.defaultModel, // Changed from dropdown value to settings default
+        model: settings.defaultModel,
         createdAt: new Date().toISOString()
     };
     
-    // Update model selector to show default model
+    // Reset both model selector and temporary override to default
     document.getElementById('model-selector').value = settings.defaultModel;
+    document.getElementById('context-size-override').value = settings.contextSize;
     
     document.getElementById('conversation-title').textContent = 'New Conversation';
     document.getElementById('chat-messages').innerHTML = `
