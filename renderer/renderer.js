@@ -415,6 +415,18 @@ async function callOpenRouterStreaming(messages) {
             }
         } finally {
             reader.releaseLock();
+            
+            // Remove blinking cursor after stream completes
+            const cursor = messageElement.querySelector('.cursor-blink');
+            if (cursor) {
+                cursor.remove();
+                
+                // Remove any trailing empty text nodes
+                const lastChild = messageElement.lastChild;
+                if (lastChild?.nodeType === Node.TEXT_NODE && lastChild.textContent === '') {
+                    lastChild.remove();
+                }
+            }
         }
     } catch (fetchError) {
         console.error('Fetch error:', fetchError);
