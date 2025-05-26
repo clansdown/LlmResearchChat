@@ -67,6 +67,7 @@ function applySettings() {
     document.getElementById('web-max-results').value = settings.webMaxResults || 3;
     document.getElementById('context-size').value = settings.contextSize || '8192';
     document.getElementById('context-size-override').value = settings.contextSize || '8192';
+    document.getElementById('web-results-override').value = settings.webMaxResults || 3;
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
     
