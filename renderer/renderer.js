@@ -737,6 +737,10 @@ function loadSystemPrompts() {
         }
         selector.appendChild(option);
     });
+
+    // Show/hide based on number of prompts
+    const shouldShow = settings.systemPrompts.length > 1;
+    selector.style.display = shouldShow ? 'block' : 'none';
 }
 
 // Load available models
@@ -852,7 +856,7 @@ function addSystemPrompt() {
     
     settings.systemPrompts.push(newPrompt);
     displaySystemPrompts();
-    loadSystemPrompts();
+    loadSystemPrompts(); // This will update visibility
 }
 
 // Update system prompt name
@@ -888,7 +892,7 @@ function deleteSystemPrompt(id) {
         settings.activeSystemPromptId = defaultPrompt ? defaultPrompt.id : settings.systemPrompts[0]?.id;
     }
     displaySystemPrompts();
-    loadSystemPrompts();
+    loadSystemPrompts(); // This will update visibility
 }
 
 // Display model configuration in settings
