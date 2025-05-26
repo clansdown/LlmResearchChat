@@ -224,6 +224,9 @@ function createNewConversation() {
     window.getSelection().removeAllRanges();
     
     updateConversationList();
+    
+    // Update total cost
+    calculateTotalCost();
 }
 
 // Load a conversation
@@ -250,6 +253,9 @@ async function loadConversation(conversationItem) {
     });
     
     updateConversationList();
+    
+    // Update total cost
+    calculateTotalCost();
 }
 
 // Send a message
@@ -594,6 +600,9 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Update total cost
+    calculateTotalCost();
 }
 
 // Show typing indicator
@@ -787,6 +796,13 @@ async function fetchGenerationData(requestId) {
         console.error('Error fetching generation data:', error);
         return null;
     }
+}
+
+// Calculate and update total conversation cost
+function calculateTotalCost() {
+    const total = currentConversation.messages.reduce((sum, msg) => sum + (msg.cost || 0), 0);
+    document.getElementById('conversation-total-cost').textContent = 
+        `Total: $${total.toFixed(2)}`;
 }
 
 // Utility function to escape HTML
@@ -1298,6 +1314,9 @@ async function deleteConversation(id) {
         }
         // Reload history list
         await loadConversationHistory();
+        
+        // Update total cost
+        calculateTotalCost();
     }
 }
 
@@ -1370,4 +1389,7 @@ function extractLinks(content) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    calculateTotalCost();
+});
