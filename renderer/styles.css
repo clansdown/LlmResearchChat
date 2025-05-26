@@ -863,6 +863,17 @@ body {
     width: 70px;
 }
 
+/* Dark mode overrides for override group controls */
+[data-theme="dark"] .toolbar-selector#context-size-override {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .web-results-override {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
 /* Model configuration styles */
 .model-selection-container {
     max-height: 300px;
