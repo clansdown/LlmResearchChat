@@ -748,12 +748,18 @@ function highlightMisspelledWords() {
 // Fetch generation data from OpenRouter Generation API
 async function fetchGenerationData(requestId) {
     try {
-        const response = await fetch(`https://openrouter.ai/api/v1/generation?id=${requestId}`, {
+        const formData = new URLSearchParams();
+        formData.append('id', requestId);
+
+        const response = await fetch('https://openrouter.ai/api/v1/generation', {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 'Authorization': `Bearer ${settings.apiKey}`,
                 'HTTP-Referer': 'https://openrouter.ai',
                 'X-Title': 'LLM UI'
-            }
+            },
+            body: formData.toString()
         });
         
         if (!response.ok) throw new Error('Failed to fetch generation data');
