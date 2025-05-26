@@ -748,7 +748,7 @@ function highlightMisspelledWords() {
 // Fetch generation data from OpenRouter Generation API
 async function fetchGenerationData(requestId) {
     try {
-        const response = await fetch(`https://openrouter.ai/api/v1/generation/${requestId}`, {
+        const response = await fetch(`https://openrouter.ai/api/v1/generation?id=${requestId}`, {
             headers: {
                 'Authorization': `Bearer ${settings.apiKey}`,
                 'HTTP-Referer': 'https://openrouter.ai',
