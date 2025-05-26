@@ -54,8 +54,8 @@ function applySettings() {
     // Apply theme
     document.documentElement.setAttribute('data-theme', settings.theme);
     
-    // Apply font size
-    document.body.style.fontSize = `${settings.fontSize}px`;
+    // Apply font size to CSS variable
+    document.documentElement.style.setProperty('--base-font-size', settings.fontSize);
     
     // Update settings modal
     document.getElementById('api-key').value = settings.apiKey || '';
