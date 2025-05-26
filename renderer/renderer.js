@@ -243,7 +243,7 @@ async function loadConversation(conversationItem) {
     
     currentConversation.messages.forEach(msg => {
         if (msg.role === 'assistant') {
-            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId, msg.cost);
+            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId, msg.cost, msg.requestId);
         } else {
             appendMessage(msg.role, msg.content, false);
         }
@@ -365,6 +365,7 @@ async function callOpenRouterStreaming(messages) {
     
     let fullContent = '';
     let usage = null;
+    let requestId = null;
     
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -433,6 +434,11 @@ async function callOpenRouterStreaming(messages) {
                             fullContent += content;
                             updateStreamingMessage(messageElement, fullContent);
                             
+                            // Capture request ID if present
+                            if (parsed.id) {
+                                requestId = parsed.id;
+                            }
+                            
                             // Capture usage data if present
                             if (parsed.usage) {
                                 usage = parsed.usage;
@@ -472,7 +478,8 @@ async function callOpenRouterStreaming(messages) {
         modelName: modelName,
         modelId: currentConversation.model,
         usage: usage,
-        cost: cost
+        cost: cost,
+        requestId: requestId
     });
     
     // Store context size with conversation
@@ -489,7 +496,7 @@ async function callOpenRouterStreaming(messages) {
 }
 
 // Append a message to the chat
-function appendMessage(role, content, animate = true, modelName = null, modelId = null, cost = null) {
+function appendMessage(role, content, animate = true, modelName = null, modelId = null, cost = null, requestId = null) {
     const chatMessages = document.getElementById('chat-messages');
     
     // Remove welcome message if exists
@@ -512,8 +519,14 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
         avatar.textContent = modelName ? modelName.substring(0, 3).toUpperCase() : 'AI';
         if (modelName && modelId) {
             avatar.title = `${modelName} (${modelId})`;
+            if (requestId) {
+                avatar.title += `\nRequest ID: ${requestId}`;
+            }
         } else if (modelName) {
             avatar.title = modelName;
+            if (requestId) {
+                avatar.title += `\nRequest ID: ${requestId}`;
+            }
         }
     } else {
         avatar.textContent = 'S';
