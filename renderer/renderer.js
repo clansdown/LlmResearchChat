@@ -227,7 +227,10 @@ async function loadConversation(conversationItem) {
 
     currentConversation = fullConversation;
     document.getElementById('conversation-title').textContent = currentConversation.title;
+    
+    // Set both the model selector and temporary override
     document.getElementById('model-selector').value = currentConversation.model;
+    document.getElementById('context-size-override').value = currentConversation.contextSize || settings.contextSize;
     
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = '';
@@ -440,6 +443,9 @@ async function callOpenRouterStreaming(messages) {
         content: fullContent,
         modelName: modelName
     });
+    
+    // Store context size with conversation
+    currentConversation.contextSize = document.getElementById('context-size-override').value || settings.contextSize;
     
     // Update conversation title if it's the first exchange
     if (currentConversation.messages.filter(m => m.role === 'user').length === 1) {
