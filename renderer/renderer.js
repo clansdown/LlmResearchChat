@@ -242,7 +242,7 @@ async function loadConversation(conversationItem) {
     
     currentConversation.messages.forEach(msg => {
         if (msg.role === 'assistant') {
-            appendMessage(msg.role, msg.content, false, msg.modelName);
+            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId);
         } else {
             appendMessage(msg.role, msg.content, false);
         }
@@ -449,7 +449,8 @@ async function callOpenRouterStreaming(messages) {
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
-        modelName: modelName
+        modelName: modelName,
+        modelId: currentConversation.model
     });
     
     // Store context size with conversation
@@ -466,7 +467,7 @@ async function callOpenRouterStreaming(messages) {
 }
 
 // Append a message to the chat
-function appendMessage(role, content, animate = true, modelName = null) {
+function appendMessage(role, content, animate = true, modelName = null, modelId = null) {
     const chatMessages = document.getElementById('chat-messages');
     
     // Remove welcome message if exists
@@ -487,7 +488,11 @@ function appendMessage(role, content, animate = true, modelName = null) {
     } else if (role === 'assistant') {
         // Use first 3 characters of model name
         avatar.textContent = modelName ? modelName.substring(0, 3).toUpperCase() : 'AI';
-        if (modelName) avatar.title = modelName;
+        if (modelName && modelId) {
+            avatar.title = `${modelName} (${modelId})`;
+        } else if (modelName) {
+            avatar.title = modelName;
+        }
     } else {
         avatar.textContent = 'S';
     }
@@ -725,9 +730,10 @@ function createStreamingMessage() {
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
+    const modelId = currentConversation.model;
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
     avatar.textContent = modelName.substring(0, 3).toUpperCase();
-    avatar.title = modelName;
+    avatar.title = `${modelName} (${modelId})`;
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -1112,9 +1118,10 @@ function showTypingIndicator() {
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
+    const modelId = currentConversation.model;
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
     avatar.textContent = modelName.substring(0, 3).toUpperCase();
-    avatar.title = modelName;
+    avatar.title = `${modelName} (${modelId})`;
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';

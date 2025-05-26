@@ -305,7 +305,13 @@ ipcMain.handle('add-to-history', async (event, conversation) => {
   const data = {
     ...conversation,
     model: conversation.model || 'openai/gpt-3.5-turbo', // Ensure model exists
-    preview: conversation.messages[0]?.content.substring(0, 100) || ''
+    preview: conversation.messages[0]?.content.substring(0, 100) || '',
+    messages: conversation.messages.map(msg => {
+      if (msg.role === 'assistant' && !msg.modelId) {
+        return {...msg, modelId: conversation.model};
+      }
+      return msg;
+    })
   };
   await fs.writeFile(convPath, JSON.stringify(data, null, 2));
   return true;
