@@ -959,6 +959,7 @@ body {
 
 /* Total cost display */
 .total-cost-container {
+    display: none;
     padding: 0 24px;
     margin-top: 16px;
 }

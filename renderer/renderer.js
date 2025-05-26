@@ -475,7 +475,7 @@ async function callOpenRouterStreaming(messages) {
     console.log("Cost is ", cost);
     
     // Update the DOM with the final cost
-    if (cost !== null) {
+    if (cost !== null && cost > 0) {
         const chatMessages = document.getElementById('chat-messages');
         const lastMessage = chatMessages.lastElementChild;
         
@@ -582,7 +582,7 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     contentDiv.innerHTML = formattedContent;
 
     // Add cost display if available
-    if (cost !== null && cost !== undefined) {
+    if (cost !== null && cost !== undefined && cost > 0) {
         const costDiv = document.createElement('div');
         costDiv.className = 'message-cost';
         costDiv.textContent = `Cost: $${cost.toFixed(2)}`;
@@ -804,8 +804,15 @@ async function fetchGenerationData(requestId) {
 // Calculate and update total conversation cost
 function calculateTotalCost() {
     const total = currentConversation.messages.reduce((sum, msg) => sum + (msg.cost || 0), 0);
-    document.getElementById('conversation-total-cost').textContent = 
-        `Total: $${total.toFixed(2)}`;
+    const totalElement = document.getElementById('conversation-total-cost');
+    const container = document.querySelector('.total-cost-container');
+    
+    if (total > 0) {
+        totalElement.textContent = `Total: $${total.toFixed(2)}`;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
 }
 
 // Utility function to escape HTML
@@ -876,13 +883,15 @@ function updateStreamingMessage(element, content, cost = null) {
     
     // Add/update cost display
     let costDiv = element.querySelector('.message-cost');
-    if (cost !== null) {
+    if (cost !== null && cost > 0) {
         if (!costDiv) {
             costDiv = document.createElement('div');
             costDiv.className = 'message-cost';
             element.appendChild(costDiv);
         }
         costDiv.textContent = `Cost: $${cost.toFixed(2)}`;
+    } else if (costDiv) {
+        costDiv.remove();
     }
     
     // Add click handlers for links
