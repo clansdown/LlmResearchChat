@@ -467,6 +467,23 @@ async function callOpenRouterStreaming(messages) {
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
     const cost = generationData?.total_cost || latestGeneration?.total_cost || null;
     console.log("Cost is ", cost);
+    
+    // Update the DOM with the final cost
+    if (cost !== null) {
+        const chatMessages = document.getElementById('chat-messages');
+        const lastMessage = chatMessages.lastElementChild;
+        
+        if (lastMessage && lastMessage.classList.contains('assistant')) {
+            let costDiv = lastMessage.querySelector('.message-cost');
+            if (!costDiv) {
+                costDiv = document.createElement('div');
+                costDiv.className = 'message-cost';
+                lastMessage.querySelector('.message-content').appendChild(costDiv);
+            }
+            costDiv.textContent = `Cost: $${cost.toFixed(2)}`;
+        }
+    }
+    
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
