@@ -21,6 +21,7 @@ let settings = {
 
 let isTyping = false;
 let abortController = null;
+let cachedModels = null;
 
 // Initialize the application
 async function init() {
@@ -242,7 +243,7 @@ async function loadConversation(conversationItem) {
     
     currentConversation.messages.forEach(msg => {
         if (msg.role === 'assistant') {
-            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId);
+            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId, msg.cost);
         } else {
             appendMessage(msg.role, msg.content, false);
         }
@@ -314,6 +315,18 @@ async function sendMessage() {
     }
 }
 
+// Calculate cost based on usage and model pricing
+function calculateCost(usage, modelId) {
+    if (!cachedModels || !usage || !modelId) return null;
+    
+    const model = cachedModels.find(m => m.id === modelId);
+    if (!model || !model.pricing) return null;
+    
+    const promptCost = (usage.prompt_tokens / 1000000) * model.pricing.prompt;
+    const completionCost = (usage.completion_tokens / 1000000) * model.pricing.completion;
+    return promptCost + completionCost;
+}
+
 // Prepare messages with system prompt
 function prepareMessagesWithSystemPrompt() {
     const messages = [...currentConversation.messages];
@@ -351,6 +364,7 @@ async function callOpenRouterStreaming(messages) {
     }
     
     let fullContent = '';
+    let usage = null;
     
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -418,6 +432,11 @@ async function callOpenRouterStreaming(messages) {
                             const content = parsed.choices[0]?.delta?.content || '';
                             fullContent += content;
                             updateStreamingMessage(messageElement, fullContent);
+                            
+                            // Capture usage data if present
+                            if (parsed.usage) {
+                                usage = parsed.usage;
+                            }
                         } catch (e) {
                             console.error('Error parsing SSE data:', e);
                         }
@@ -446,11 +465,14 @@ async function callOpenRouterStreaming(messages) {
     
     // Add the complete message to conversation
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
+    const cost = calculateCost(usage, currentConversation.model);
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
         modelName: modelName,
-        modelId: currentConversation.model
+        modelId: currentConversation.model,
+        usage: usage,
+        cost: cost
     });
     
     // Store context size with conversation
@@ -467,7 +489,7 @@ async function callOpenRouterStreaming(messages) {
 }
 
 // Append a message to the chat
-function appendMessage(role, content, animate = true, modelName = null, modelId = null) {
+function appendMessage(role, content, animate = true, modelName = null, modelId = null, cost = null) {
     const chatMessages = document.getElementById('chat-messages');
     
     // Remove welcome message if exists
@@ -524,6 +546,14 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     }
 
     contentDiv.innerHTML = formattedContent;
+
+    // Add cost display if available
+    if (cost !== null && cost !== undefined) {
+        const costDiv = document.createElement('div');
+        costDiv.className = 'message-cost';
+        costDiv.textContent = `Cost: $${cost.toFixed(4)}`;
+        contentDiv.appendChild(costDiv);
+    }
 
     // Add click handlers for links
     contentDiv.querySelectorAll('a.message-link').forEach(link => {
@@ -813,6 +843,7 @@ function loadSystemPrompts() {
 async function loadAvailableModels() {
     try {
         const allModels = await window.electronAPI.getAvailableModels();
+        cachedModels = allModels; // Cache models for cost calculations
         const enabledModels = settings.selectedModels || [];
         
         // Filter and sort models
