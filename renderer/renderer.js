@@ -511,6 +511,9 @@ async function callOpenRouterStreaming(messages) {
         document.getElementById('conversation-title').textContent = currentConversation.title;
         updateConversationList();
     }
+    
+    // Update total cost after streaming completes
+    calculateTotalCost();
 }
 
 // Append a message to the chat
