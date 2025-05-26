@@ -315,17 +315,6 @@ async function sendMessage() {
     }
 }
 
-// Calculate cost based on usage and model pricing
-function calculateCost(usage, modelId) {
-    if (!cachedModels || !usage || !modelId) return null;
-    
-    const model = cachedModels.find(m => m.id === modelId);
-    if (!model || !model.pricing) return null;
-    
-    const promptCost = (usage.prompt_tokens / 1000000) * model.pricing.prompt;
-    const completionCost = (usage.completion_tokens / 1000000) * model.pricing.completion;
-    return promptCost + completionCost;
-}
 
 // Prepare messages with system prompt
 function prepareMessagesWithSystemPrompt() {
@@ -364,9 +353,7 @@ async function callOpenRouterStreaming(messages) {
     }
     
     let fullContent = '';
-    let usage = null;
-    let requestId = null;
-    let generationData = null;
+    let latestGeneration = null;
     
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -435,15 +422,13 @@ async function callOpenRouterStreaming(messages) {
                             fullContent += content;
                             updateStreamingMessage(messageElement, fullContent);
                             
-                            // Capture request ID if present
+                            // Capture generation data if present
                             if (parsed.id) {
-                                requestId = parsed.id;
-                                generationData = parsed; // Store the complete generation object
-                            }
-                            
-                            // Capture usage data if present
-                            if (parsed.usage) {
-                                usage = parsed.usage;
+                                latestGeneration = parsed; // Store the complete generation object
+                                // Update cost immediately when we get generation data
+                                if (parsed.total_cost !== undefined) {
+                                    updateStreamingMessage(messageElement, fullContent, parsed.total_cost);
+                                }
                             }
                         } catch (e) {
                             console.error('Error parsing SSE data:', e);
@@ -473,16 +458,14 @@ async function callOpenRouterStreaming(messages) {
     
     // Add the complete message to conversation
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
-    const cost = calculateCost(usage, currentConversation.model);
+    const cost = latestGeneration?.total_cost || null;
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
         modelName: modelName,
         modelId: currentConversation.model,
-        usage: usage,
-        cost: cost,
-        requestId: requestId,
-        generation: generationData // Store full generation object
+        generation: latestGeneration,
+        cost: cost
     });
     
     // Store context size with conversation
@@ -567,7 +550,7 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     if (cost !== null && cost !== undefined) {
         const costDiv = document.createElement('div');
         costDiv.className = 'message-cost';
-        costDiv.textContent = `Cost: $${cost.toFixed(4)}`;
+        costDiv.textContent = `Cost: $${cost.toFixed(2)}`;
         contentDiv.appendChild(costDiv);
     }
 
@@ -796,7 +779,7 @@ function createStreamingMessage() {
 }
 
 // Update streaming message
-function updateStreamingMessage(element, content) {
+function updateStreamingMessage(element, content, cost = null) {
     // Parse annotations and extract links
     const linkData = extractLinks(content);
     let formattedContent = linkData.content;
@@ -821,6 +804,17 @@ function updateStreamingMessage(element, content) {
     }
     
     element.innerHTML = formattedContent + '<span class="cursor-blink">▋</span>';
+    
+    // Add/update cost display
+    let costDiv = element.querySelector('.message-cost');
+    if (cost !== null) {
+        if (!costDiv) {
+            costDiv = document.createElement('div');
+            costDiv.className = 'message-cost';
+            element.appendChild(costDiv);
+        }
+        costDiv.textContent = `Cost: $${cost.toFixed(2)}`;
+    }
     
     // Add click handlers for links
     element.querySelectorAll('a.message-link').forEach(link => {
