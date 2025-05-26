@@ -460,17 +460,20 @@ async function callOpenRouterStreaming(messages) {
     let generationData = null;
     if (latestGeneration?.id) {
         generationData = await fetchGenerationData(latestGeneration.id);
+        console.log("Generation data:", generationData, generationData.total_cost, generationData.data?.total_cost);
     }
     
     // Add the complete message to conversation
     const modelName = document.getElementById('model-selector').selectedOptions[0].textContent.split(' (')[0];
     const cost = generationData?.total_cost || latestGeneration?.total_cost || null;
+    console.log("Cost is ", cost);
     currentConversation.messages.push({ 
         role: 'assistant', 
         content: fullContent,
         modelName: modelName,
         modelId: currentConversation.model,
         generation: generationData || latestGeneration, // Prefer generation API response
+        requestId: latestGeneration.id,
         cost: cost
     });
     
@@ -748,22 +751,21 @@ function highlightMisspelledWords() {
 // Fetch generation data from OpenRouter Generation API
 async function fetchGenerationData(requestId) {
     try {
-        const formData = new URLSearchParams();
-        formData.append('id', requestId);
-
-        const response = await fetch('https://openrouter.ai/api/v1/generation', {
-            method: 'POST',
+        // We can't request this immediately as the generation object won't instantly exist, we have to wait a short time
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        await sleep(2000);
+        const response = await fetch(`https://openrouter.ai/api/v1/generation?id=${encodeURIComponent(requestId)}`, {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 'Authorization': `Bearer ${settings.apiKey}`,
+                'Content-Type': 'application/json',
                 'HTTP-Referer': 'https://openrouter.ai',
-                'X-Title': 'LLM UI'
             },
-            body: formData.toString()
         });
         
         if (!response.ok) throw new Error('Failed to fetch generation data');
-        return await response.json();
+        const data = await response.json();
+        return data.data;
     } catch (error) {
         console.error('Error fetching generation data:', error);
         return null;
