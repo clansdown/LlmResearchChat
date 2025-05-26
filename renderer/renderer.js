@@ -538,6 +538,15 @@ async function loadConversationHistory() {
                     </svg>
                 </button>
             </div>
+            <div class="conversation-date">
+                ${new Date(item.createdAt).toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+            </div>
             <p>${escapeHtml(item.preview)}</p>
         `;
         

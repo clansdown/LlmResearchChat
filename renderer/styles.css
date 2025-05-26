@@ -129,6 +129,13 @@ body {
     border-radius: 4px;
 }
 
+/* Conversation date */
+.conversation-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
 .conversation-item p {
     font-size: 0.857rem;
     color: var(--text-secondary);
