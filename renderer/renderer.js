@@ -366,6 +366,7 @@ async function callOpenRouterStreaming(messages) {
     let fullContent = '';
     let usage = null;
     let requestId = null;
+    let generationData = null;
     
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -437,6 +438,7 @@ async function callOpenRouterStreaming(messages) {
                             // Capture request ID if present
                             if (parsed.id) {
                                 requestId = parsed.id;
+                                generationData = parsed; // Store the complete generation object
                             }
                             
                             // Capture usage data if present
@@ -479,7 +481,8 @@ async function callOpenRouterStreaming(messages) {
         modelId: currentConversation.model,
         usage: usage,
         cost: cost,
-        requestId: requestId
+        requestId: requestId,
+        generation: generationData // Store full generation object
     });
     
     // Store context size with conversation
