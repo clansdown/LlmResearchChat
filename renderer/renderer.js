@@ -75,6 +75,11 @@ function applySettings() {
         document.getElementById('model-selector').value = settings.defaultModel;
     }
     
+    // Initialize web toggle
+    const webToggle = document.getElementById('web-toggle');
+    webToggle.classList.toggle('active', settings.webSearchEnabled);
+    updateWebControlsState(settings.webSearchEnabled);
+    
     // Load system prompts in settings
     displaySystemPrompts();
 }
@@ -153,6 +158,13 @@ function setupEventListeners() {
     // Add Wikipedia button click handler
     const wikipediaBtn = document.getElementById('wikipedia-btn');
     wikipediaBtn.addEventListener('click', performWikipediaSearch);
+    
+    // Add web toggle click handler
+    const webToggle = document.getElementById('web-toggle');
+    webToggle.addEventListener('click', () => {
+        const webEnabled = !webToggle.classList.contains('active');
+        updateWebControlsState(webEnabled);
+    });
 }
 
 // Set up IPC listeners
@@ -337,7 +349,7 @@ async function callOpenRouterStreaming(messages) {
                 stream: true,
                 max_tokens: parseInt(document.getElementById('context-size-override').value) || 
                            parseInt(settings.contextSize) || 8192,
-                plugins: settings.webSearchEnabled ? [{
+                plugins: document.getElementById('web-toggle').classList.contains('active') ? [{
                     id: "web",
                     settings: {
                         max_results: document.getElementById('web-results-override').value || 
@@ -1150,6 +1162,13 @@ async function deleteConversation(id) {
         // Reload history list
         await loadConversationHistory();
     }
+}
+
+// Update web controls state
+function updateWebControlsState(enabled) {
+    document.getElementById('context-size-override').disabled = !enabled;
+    document.getElementById('web-results-override').disabled = !enabled;
+    document.getElementById('web-toggle').classList.toggle('active', enabled);
 }
 
 // Make functions globally available
