@@ -54,19 +54,21 @@
                     </select>
                 </div>
                 <div class="toolbar-section">
-                    <button id="web-toggle" class="toolbar-btn" title="Toggle web access">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2C2 6 2 18 12 22C22 18 22 6 12 2"/>
-                            <path d="M12 8a4 4 0 0 1 4 4a9 9 0 0 1-4 8a9 9 0 0 1-4-8a4 4 0 0 1 4-4z"/>
-                        </svg>
-                    </button>
-                    <select id="context-size-override" class="toolbar-selector" title="Temporary context size override">
-                        <option value="4096">Low Context</option>
-                        <option value="8192">Medium Context</option>
-                        <option value="16384">High Context</option>
-                    </select>
-                    <input type="number" id="web-results-override" class="web-results-override" 
-                           min="1" max="10" placeholder="Results" title="Temporary override for web results count">
+                    <div class="override-group">
+                        <button id="web-toggle" class="toolbar-btn" title="Toggle web access">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2C2 6 2 18 12 22C22 18 22 6 12 2"/>
+                                <path d="M12 8a4 4 0 0 1 4 4a9 9 0 0 1-4 8a9 9 0 0 1-4-8a4 4 0 0 1 4-4z"/>
+                            </svg>
+                        </button>
+                        <select id="context-size-override" class="toolbar-selector" title="Temporary context size override">
+                            <option value="4096">Low Context</option>
+                            <option value="8192">Medium Context</option>
+                            <option value="16384">High Context</option>
+                        </select>
+                        <input type="number" id="web-results-override" class="web-results-override" 
+                               min="1" max="10" placeholder="Results" title="Temporary override for web results count">
+                    </div>
                     <button id="wikipedia-btn" class="toolbar-btn" disabled title="Search Wikipedia">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>

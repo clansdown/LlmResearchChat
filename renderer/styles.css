@@ -832,6 +832,37 @@ body {
     background-color: var(--bg-secondary);
 }
 
+/* Override group */
+.override-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 4px;
+    margin-right: 8px;
+}
+
+.override-group > * {
+    margin: 0 !important;
+}
+
+/* Adjust existing web controls */
+#web-toggle {
+    margin-right: 0;
+}
+
+.toolbar-selector#context-size-override {
+    border: none;
+    background: transparent;
+}
+
+.web-results-override {
+    border: none;
+    background: transparent;
+    width: 70px;
+}
+
 /* Model configuration styles */
 .model-selection-container {
     max-height: 300px;
