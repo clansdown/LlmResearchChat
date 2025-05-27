@@ -606,7 +606,7 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     
     if (hiddenFromLLM) {
         messageDiv.classList.add('hidden-llm');
-        contentDiv.innerHTML = createPreviewContent(content);
+        contentDiv.innerHTML = createPreviewContent(content, cost);
     } else {
         contentDiv.innerHTML = formattedContent;
     }
@@ -1431,9 +1431,13 @@ function extractLinks(content) {
 }
 
 // Create preview content for hidden messages
-function createPreviewContent(content) {
+function createPreviewContent(content, cost) {
     const preview = content.length > 100 ? content.substring(0, 100) + '...' : content;
-    return `<div class="preview-content">${escapeHtml(preview)}</div>`;
+    let costHtml = '';
+    if (cost && cost > 0) {
+        costHtml = `<div class="preview-cost">Cost: $${cost.toFixed(2)}</div>`;
+    }
+    return `<div class="preview-content">${escapeHtml(preview)}${costHtml}</div>`;
 }
 
 // Toggle message visibility
@@ -1454,7 +1458,8 @@ function toggleMessageVisibility(messageDiv, role, content) {
     }
 
     if (isHidden) {
-        contentDiv.innerHTML = createPreviewContent(contentDiv.dataset.originalContent);
+        const messageCost = currentConversation.messages[adjustedIndex]?.cost || null;
+        contentDiv.innerHTML = createPreviewContent(contentDiv.dataset.originalContent, messageCost);
     } else {
         // Re-parse and format the original content
         const linkData = extractLinks(contentDiv.dataset.originalContent);
