@@ -246,9 +246,9 @@ async function loadConversation(conversationItem) {
     
     currentConversation.messages.forEach(msg => {
         if (msg.role === 'assistant') {
-            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId, msg.cost, msg.requestId);
+            appendMessage(msg.role, msg.content, false, msg.modelName, msg.modelId, msg.cost, msg.requestId, msg.hiddenFromLLM);
         } else {
-            appendMessage(msg.role, msg.content, false);
+            appendMessage(msg.role, msg.content, false, null, null, null, null, msg.hiddenFromLLM);
         }
     });
     
@@ -324,7 +324,9 @@ async function sendMessage() {
 
 // Prepare messages with system prompt
 function prepareMessagesWithSystemPrompt() {
-    const messages = [...currentConversation.messages];
+    const messages = [...currentConversation.messages]
+        .filter(msg => !msg.hiddenFromLLM)
+        .map(msg => ({ role: msg.role, content: msg.content }));
     const activePrompt = settings.systemPrompts.find(p => p.id === settings.activeSystemPromptId);
     
     if (activePrompt && activePrompt.content) {
@@ -517,7 +519,7 @@ async function callOpenRouterStreaming(messages) {
 }
 
 // Append a message to the chat
-function appendMessage(role, content, animate = true, modelName = null, modelId = null, cost = null, requestId = null) {
+function appendMessage(role, content, animate = true, modelName = null, modelId = null, cost = null, requestId = null, hiddenFromLLM = false) {
     const chatMessages = document.getElementById('chat-messages');
     
     // Remove welcome message if exists
@@ -529,6 +531,9 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
     if (animate) messageDiv.style.animation = 'fadeIn 0.3s ease-out';
+    
+    const header = document.createElement('div');
+    header.className = 'message-header';
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
@@ -551,6 +556,23 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
         }
     } else {
         avatar.textContent = 'S';
+    }
+    
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'visibility-toggle';
+    toggleBtn.title = 'Toggle visibility for LLM';
+    toggleBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+            ${hiddenFromLLM ? '<path d="M2 2l20 20" stroke-width="2.5"/>' : ''}
+        </svg>
+    `;
+    toggleBtn.onclick = () => toggleMessageVisibility(messageDiv, role, content);
+    
+    header.appendChild(avatar);
+    if (role !== 'system') {
+        header.appendChild(toggleBtn);
     }
     
     const contentDiv = document.createElement('div');
@@ -579,7 +601,15 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
         </div>`;
     }
 
-    contentDiv.innerHTML = formattedContent;
+    // Store original content in data attribute
+    contentDiv.dataset.originalContent = content;
+    
+    if (hiddenFromLLM) {
+        messageDiv.classList.add('hidden-llm');
+        contentDiv.innerHTML = createPreviewContent(content);
+    } else {
+        contentDiv.innerHTML = formattedContent;
+    }
 
     // Add cost display if available
     if (cost !== null && cost !== undefined && cost > 0) {
@@ -597,7 +627,7 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
         });
     });
     
-    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(header);
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
     
@@ -1398,6 +1428,80 @@ function extractLinks(content) {
         content: cleanContent,
         links: links.filter((v, i, a) => a.findIndex(t => t.url === v.url) === i) // Dedupe
     };
+}
+
+// Create preview content for hidden messages
+function createPreviewContent(content) {
+    const preview = content.length > 100 ? content.substring(0, 100) + '...' : content;
+    return `<div class="preview-content">${escapeHtml(preview)}</div>`;
+}
+
+// Toggle message visibility
+function toggleMessageVisibility(messageDiv, role, content) {
+    const contentDiv = messageDiv.querySelector('.message-content');
+    const isHidden = messageDiv.classList.toggle('hidden-llm');
+    
+    // Update the message data in currentConversation
+    const messageIndex = Array.from(messageDiv.parentNode.children).indexOf(messageDiv);
+    // Account for welcome message and adjust index
+    let adjustedIndex = messageIndex;
+    if (document.querySelector('.welcome-message')) {
+        adjustedIndex = messageIndex - 1;
+    }
+    
+    if (currentConversation.messages[adjustedIndex]) {
+        currentConversation.messages[adjustedIndex].hiddenFromLLM = isHidden;
+    }
+
+    if (isHidden) {
+        contentDiv.innerHTML = createPreviewContent(contentDiv.dataset.originalContent);
+    } else {
+        // Re-parse and format the original content
+        const linkData = extractLinks(contentDiv.dataset.originalContent);
+        let formattedContent = linkData.content;
+        const links = linkData.links;
+
+        // Format main content
+        formattedContent = escapeHtml(formattedContent);
+        formattedContent = formattedContent.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+        formattedContent = formattedContent.replace(/`([^`]+)`/g, '<code>$1</code>');
+        formattedContent = formattedContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        formattedContent = formattedContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        formattedContent = formattedContent.replace(/\n/g, '<br>');
+
+        // Add links section if any were found
+        if (links.length > 0) {
+            formattedContent += `<div class="message-links">
+                <div class="links-title">References:</div>
+                ${links.map((link, index) => 
+                    `<a href="#" class="message-link" data-url="${link.url}">[${index + 1}] ${link.text || link.url}</a>`
+                ).join('')}
+            </div>`;
+        }
+        
+        contentDiv.innerHTML = formattedContent;
+        
+        // Re-add click handlers for links
+        contentDiv.querySelectorAll('a.message-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.electronAPI.openExternal(link.dataset.url);
+            });
+        });
+    }
+    
+    // Update toggle button icon
+    const toggleIcon = messageDiv.querySelector('.visibility-toggle svg');
+    toggleIcon.innerHTML = `
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+        ${isHidden ? '<path d="M2 2l20 20" stroke-width="2.5"/>' : ''}
+    `;
+    
+    // Auto-save if enabled
+    if (settings.autoSave && currentConversation.messages.length > 0) {
+        window.electronAPI.addToHistory(currentConversation);
+    }
 }
 
 // Initialize when DOM is ready

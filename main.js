@@ -308,9 +308,9 @@ ipcMain.handle('add-to-history', async (event, conversation) => {
     preview: conversation.messages[0]?.content.substring(0, 100) || '',
     messages: conversation.messages.map(msg => {
       if (msg.role === 'assistant' && !msg.modelId) {
-        return {...msg, modelId: conversation.model, cost: msg.cost || null, usage: msg.usage || null, requestId: msg.requestId || null, generation: msg.generation || null};
+        return {...msg, modelId: conversation.model, cost: msg.cost || null, usage: msg.usage || null, requestId: msg.requestId || null, generation: msg.generation || null, hiddenFromLLM: msg.hiddenFromLLM || false};
       }
-      return {...msg, cost: msg.cost || null, usage: msg.usage || null, requestId: msg.requestId || null, generation: msg.generation || null};
+      return {...msg, cost: msg.cost || null, usage: msg.usage || null, requestId: msg.requestId || null, generation: msg.generation || null, hiddenFromLLM: msg.hiddenFromLLM || false};
     })
   };
   await fs.writeFile(convPath, JSON.stringify(data, null, 2));

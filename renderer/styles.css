@@ -971,3 +971,44 @@ body {
     padding: 4px 0;
     border-top: 1px solid var(--border-color);
 }
+
+/* Message header and visibility toggle */
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.visibility-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.visibility-toggle:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.message.hidden-llm .message-content {
+    opacity: 0.6;
+    filter: grayscale(0.8);
+    position: relative;
+    padding-right: 40px;
+}
+
+.message.hidden-llm .message-content::after {
+    content: "Hidden from LLM";
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    padding: 2px 4px;
+    border-radius: 4px;
+}
