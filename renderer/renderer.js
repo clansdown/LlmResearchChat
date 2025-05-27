@@ -22,6 +22,8 @@ let settings = {
 let isTyping = false;
 let abortController = null;
 let cachedModels = null;
+let includePreviousMessagesInContext = true;
+let previousMessagesContextWindow = 8000;
 
 // Initialize the application
 async function init() {
@@ -71,6 +73,17 @@ function applySettings() {
     document.getElementById('web-results-override').value = settings.webMaxResults || 3;
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
+    
+    // Apply context settings
+    includePreviousMessagesInContext = settings.includePreviousMessagesInContext !== false;
+    previousMessagesContextWindow = settings.previousMessagesContextWindow || 8000;
+    document.getElementById('include-previous-messages').checked = includePreviousMessagesInContext;
+    document.getElementById('context-window').value = previousMessagesContextWindow;
+    document.getElementById('context-window-group').classList.toggle('visible', includePreviousMessagesInContext);
+    
+    // Update context toggle button
+    const contextToggle = document.getElementById('context-toggle');
+    contextToggle.classList.toggle('active', includePreviousMessagesInContext);
     
     // Update model selector
     if (settings.defaultModel) {
@@ -176,6 +189,19 @@ function setupEventListeners() {
     const conversationSearch = document.getElementById('conversation-search');
     conversationSearch.addEventListener('input', (e) => {
         filterConversations(e.target.value.toLowerCase());
+    });
+    
+    // Context toggle click handler
+    const contextToggle = document.getElementById('context-toggle');
+    contextToggle.addEventListener('click', () => {
+        includePreviousMessagesInContext = !includePreviousMessagesInContext;
+        contextToggle.classList.toggle('active', includePreviousMessagesInContext);
+    });
+    
+    // Context settings handlers
+    const includePreviousCheckbox = document.getElementById('include-previous-messages');
+    includePreviousCheckbox.addEventListener('change', (e) => {
+        document.getElementById('context-window-group').classList.toggle('visible', e.target.checked);
     });
 }
 
@@ -324,9 +350,29 @@ async function sendMessage() {
 
 // Prepare messages with system prompt
 function prepareMessagesWithSystemPrompt() {
-    const messages = [...currentConversation.messages]
+    let messages = [...currentConversation.messages]
         .filter(msg => !msg.hiddenFromLLM)
         .map(msg => ({ role: msg.role, content: msg.content }));
+
+    if (includePreviousMessagesInContext) {
+        // Collect messages until we reach the word limit
+        let wordCount = 0;
+        const contextMessages = [];
+        
+        // Iterate backwards through messages (newest first)
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const msg = messages[i];
+            const words = msg.content.split(/\s+/).length;
+            
+            if (wordCount + words > previousMessagesContextWindow) break;
+            
+            contextMessages.unshift(msg); // Add to beginning to maintain order
+            wordCount += words;
+        }
+        
+        messages = contextMessages;
+    }
+
     const activePrompt = settings.systemPrompts.find(p => p.id === settings.activeSystemPromptId);
     
     if (activePrompt && activePrompt.content) {
@@ -769,7 +815,9 @@ async function saveSettings() {
         systemPromptMode: document.getElementById('system-prompt-mode').value,
         systemPrompts: settings.systemPrompts,
         defaultModel: document.getElementById('default-model-select').value,
-        selectedModels: settings.selectedModels
+        selectedModels: settings.selectedModels,
+        includePreviousMessagesInContext: document.getElementById('include-previous-messages').checked,
+        previousMessagesContextWindow: parseInt(document.getElementById('context-window').value) || 8000
     };
     
     await window.electronAPI.saveSettings(newSettings);

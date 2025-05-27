@@ -44,6 +44,8 @@ const store = new Store({
       'google/palm-2-chat-bison',
       'meta-llama/llama-2-70b-chat'
     ],
+    includePreviousMessagesInContext: true,
+    previousMessagesContextWindow: 8000,
     windowBounds: {
       x: undefined,
       y: undefined,

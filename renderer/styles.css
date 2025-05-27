@@ -826,6 +826,22 @@ body {
     background-color: #45a049 !important;
 }
 
+/* Context toggle button */
+#context-toggle.active {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+
+/* Context window settings */
+.context-window-group {
+    margin-top: 8px;
+    display: none;
+}
+
+.context-window-group.visible {
+    display: block;
+}
+
 /* Disabled inputs */
 .toolbar-selector:disabled,
 .web-results-override:disabled {
