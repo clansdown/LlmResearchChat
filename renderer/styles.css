@@ -1002,13 +1002,5 @@ body {
 }
 
 .message.hidden-llm .message-content::after {
-    content: "Hidden from LLM";
-    position: absolute;
-    right: 8px;
-    top: 8px;
-    font-size: 0.8em;
-    color: var(--text-secondary);
-    background: var(--bg-primary);
-    padding: 2px 4px;
-    border-radius: 4px;
+    content: "";
 }
