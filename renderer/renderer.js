@@ -376,19 +376,33 @@ function prepareMessagesWithSystemPrompt() {
     const activePrompt = settings.systemPrompts.find(p => p.id === settings.activeSystemPromptId);
     
     if (activePrompt && activePrompt.content) {
-        if (settings.systemPromptMode === 'once') {
-            // Add system prompt at the beginning if not already there
-            if (messages.length === 1 || (messages[0].role !== 'system')) {
-                messages.unshift({ role: 'system', content: activePrompt.content });
-            }
-        } else if (settings.systemPromptMode === 'always') {
-            // Add system prompt to the last user message
-            const lastUserMessageIndex = messages.length - 1;
-            if (messages[lastUserMessageIndex].role === 'user') {
-                messages[lastUserMessageIndex] = {
-                    ...messages[lastUserMessageIndex],
-                    content: activePrompt.content + '\n\n' + messages[lastUserMessageIndex].content
-                };
+        if (!includePreviousMessagesInContext) {
+            // When context is disabled, prepend system prompt to each user message
+            messages = messages.map(msg => {
+                if (msg.role === 'user') {
+                    return {
+                        ...msg,
+                        content: `${activePrompt.content}\n\n${msg.content}`
+                    };
+                }
+                return msg;
+            });
+        } else {
+            // Existing system prompt mode handling
+            if (settings.systemPromptMode === 'once') {
+                // Add system prompt at the beginning if not already there
+                if (messages.length === 1 || (messages[0].role !== 'system')) {
+                    messages.unshift({ role: 'system', content: activePrompt.content });
+                }
+            } else if (settings.systemPromptMode === 'always') {
+                // Add system prompt to the last user message
+                const lastUserMessageIndex = messages.length - 1;
+                if (messages[lastUserMessageIndex].role === 'user') {
+                    messages[lastUserMessageIndex] = {
+                        ...messages[lastUserMessageIndex],
+                        content: activePrompt.content + '\n\n' + messages[lastUserMessageIndex].content
+                    };
+                }
             }
         }
     }
