@@ -68,8 +68,6 @@ function applySettings() {
     document.getElementById('auto-save').checked = settings.autoSave;
     document.getElementById('web-search-enabled').checked = settings.webSearchEnabled !== false;
     document.getElementById('web-max-results').value = settings.webMaxResults || 3;
-    document.getElementById('context-size').value = settings.contextSize || '8192';
-    document.getElementById('context-size-override').value = settings.contextSize || '8192';
     document.getElementById('web-results-override').value = settings.webMaxResults || 3;
     document.getElementById('search-engine').value = settings.searchEngine || 'google';
     document.getElementById('system-prompt-mode').value = settings.systemPromptMode || 'once';
@@ -236,7 +234,6 @@ function createNewConversation() {
     
     // Reset both model selector and temporary override to default
     document.getElementById('model-selector').value = settings.defaultModel;
-    document.getElementById('context-size-override').value = settings.contextSize;
     
     document.getElementById('conversation-title').textContent = 'New Conversation';
     document.getElementById('chat-messages').innerHTML = `
@@ -265,7 +262,6 @@ async function loadConversation(conversationItem) {
     
     // Set both the model selector and temporary override
     document.getElementById('model-selector').value = currentConversation.model;
-    document.getElementById('context-size-override').value = currentConversation.contextSize || settings.contextSize;
     
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = '';
@@ -436,15 +432,11 @@ async function callOpenRouterStreaming(messages) {
                 model: currentConversation.model,
                 messages: messages,
                 stream: true,
-                max_tokens: parseInt(document.getElementById('context-size-override').value) || 
-                           parseInt(settings.contextSize) || 8192,
+                max_tokens: 8192,
                 plugins: document.getElementById('web-toggle').classList.contains('active') ? [{
                     id: "web",
-                    settings: {
-                        max_results: document.getElementById('web-results-override').value || 
-                                    settings.webMaxResults || 3
-                    }
-                }] : []
+                    max_results: document.getElementById('web-results-override').value || settings.webMaxResults || 3,
+                }] : [],
             }),
             signal: abortController.signal
         });
@@ -562,9 +554,7 @@ async function callOpenRouterStreaming(messages) {
         cost: cost
     });
     
-    // Store context size with conversation
-    currentConversation.contextSize = document.getElementById('context-size-override').value || settings.contextSize;
-    
+   
     // Update conversation title if it's the first exchange
     if (currentConversation.messages.filter(m => m.role === 'user').length === 1) {
         const firstUserMessage = currentConversation.messages.find(m => m.role === 'user');
@@ -824,7 +814,6 @@ async function saveSettings() {
         autoSave: document.getElementById('auto-save').checked,
         webSearchEnabled: document.getElementById('web-search-enabled').checked,
         webMaxResults: parseInt(document.getElementById('web-max-results').value) || 3,
-        contextSize: document.getElementById('context-size').value,
         searchEngine: document.getElementById('search-engine').value,
         systemPromptMode: document.getElementById('system-prompt-mode').value,
         systemPrompts: settings.systemPrompts,
@@ -1426,7 +1415,6 @@ async function deleteConversation(id) {
 
 // Update web controls state
 function updateWebControlsState(enabled) {
-    document.getElementById('context-size-override').disabled = !enabled;
     document.getElementById('web-results-override').disabled = !enabled;
     document.getElementById('web-toggle').classList.toggle('active', enabled);
 }

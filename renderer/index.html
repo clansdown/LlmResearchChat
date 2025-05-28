@@ -52,8 +52,6 @@
                         <option value="google/palm-2-chat-bison">PaLM 2</option>
                         <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
                     </select>
-                </div>
-                <div class="toolbar-section">
                     <div class="override-group">
                         <button id="web-toggle" class="toolbar-btn" title="Toggle web access">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -61,11 +59,6 @@
                                 <path d="M12 8a4 4 0 0 1 4 4a9 9 0 0 1-4 8a9 9 0 0 1-4-8a4 4 0 0 1 4-4z"/>
                             </svg>
                         </button>
-                        <select id="context-size-override" class="toolbar-selector" title="Temporary context size override">
-                            <option value="4096">Low Context</option>
-                            <option value="8192">Medium Context</option>
-                            <option value="16384">High Context</option>
-                        </select>
                         <input type="number" id="web-results-override" class="web-results-override" 
                                min="1" max="10" placeholder="Results" title="Temporary override for web results count">
                     </div>
@@ -75,6 +68,8 @@
                             <path d="M16 5h1a2 2 0 0 1 2 2v3m-3-5 3 3m-3-3-3 3M3 11h16"/>
                         </svg>
                     </button>
+                </div>
+                <div class="toolbar-section">
                     <button id="wikipedia-btn" class="toolbar-btn" disabled title="Search Wikipedia">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
@@ -164,12 +159,12 @@
                         <input type="checkbox" id="web-search-enabled" checked>
                         Enable web search for models
                     </label>
+                    <small>When enabled, models can access current web content</small>
                     <div class="web-search-settings" style="margin-top: 8px;">
                         <label for="web-max-results">Max results:</label>
                         <input type="number" id="web-max-results" class="setting-input" 
                                min="1" max="10" value="3" style="width: 80px; margin-left: 8px;">
                     </div>
-                    <small>When enabled, models can access current web content</small>
                 </div>
 
                 <div class="setting-group">
@@ -183,18 +178,9 @@
                                min="1000" max="32000" step="1000" value="8000" 
                                style="width: 120px; margin-left: 8px;">
                     </div>
-                    <small>Control how much conversation history is included in each request</small>
+                    <small>Control how much conversation history is included in each request.</small>
                 </div>
 
-                <div class="setting-group">
-                    <label for="context-size">Context Size</label>
-                    <select id="context-size" class="setting-input">
-                        <option value="4096">Low (4k) $ - 1x cost</option>
-                        <option value="8192">Medium (8k) $$ - 2x cost</option>
-                        <option value="16384">High (16k) $$$ - 4x cost</option>
-                    </select>
-                    <small>Higher context windows allow longer conversations but increase costs proportionally to token usage</small>
-                </div>
                 
                 <div class="setting-group">
                     <label for="search-engine">Search Engine</label>

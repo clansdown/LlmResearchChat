@@ -994,7 +994,8 @@ body {
 .message-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 8px;
     margin-bottom: 8px;
 }
 
