@@ -16,7 +16,12 @@
     "pack": "electron-builder --dir",
     "postinstall": "electron-builder install-app-deps"
   },
-  "keywords": ["electron", "llm", "openrouter", "ai"],
+  "keywords": [
+    "electron",
+    "llm",
+    "openrouter",
+    "ai"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "homepage": "https://github.com/yourusername/llm-ui",
@@ -30,11 +35,12 @@
   },
   "dependencies": {
     "axios": "^1.7.2",
-    "electron-store": "^8.2.0",
     "electron-context-menu": "^3.6.1",
     "electron-log": "^5.1.2",
+    "electron-store": "^8.2.0",
     "electron-updater": "^6.1.8",
-    "marked": "^11.1.0"
+    "marked": "^11.1.0",
+    "stylelint": "^16.20.0"
   },
   "build": {
     "appId": "com.example.llmui",
@@ -72,7 +78,10 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "icon": "assets/icon.png"
@@ -81,19 +90,29 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64", "armv7l", "arm64"]
+          "arch": [
+            "x64",
+            "armv7l",
+            "arm64"
+          ]
         },
         {
           "target": "rpm",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "snap",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "category": "Development",
