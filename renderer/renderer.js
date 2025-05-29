@@ -16,7 +16,8 @@ let settings = {
     searchEngine: 'google',
     systemPrompts: [],
     activeSystemPromptId: 'default',
-    systemPromptMode: 'once'
+    systemPromptMode: 'once',
+    sidebarVisibility: true
 };
 
 let isTyping = false;
@@ -100,6 +101,10 @@ function applySettings() {
     
     // Load system prompts in settings
     displaySystemPrompts();
+    
+    // Apply sidebar visibility
+    sidebarVisible = settings.sidebarVisibility || true;
+    toggleSidebarUI(sidebarVisible);
 }
 
 // Set up event listeners
@@ -206,6 +211,9 @@ function setupEventListeners() {
     includePreviousCheckbox.addEventListener('change', (e) => {
         document.getElementById('context-window-group').classList.toggle('visible', e.target.checked);
     });
+    
+    // Add sidebar toggle handler
+    document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
 }
 
 // Set up IPC listeners
@@ -1604,9 +1612,37 @@ function setupResizer() {
     });
 }
 
+// Toggle sidebar visibility
+function toggleSidebar() {
+    sidebarVisible = !sidebarVisible;
+    toggleSidebarUI(sidebarVisible);
+    window.electronAPI.saveSidebarVisibility(sidebarVisible);
+}
+
+function toggleSidebarUI(visible) {
+    const sidebar = document.querySelector('.sidebar');
+    const resizer = document.getElementById('sidebar-resizer');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const container = document.querySelector('.container');
+    
+    if (visible) {
+        sidebar.classList.remove('hidden');
+        resizer.classList.remove('hidden');
+        container.classList.remove('hidden-main');
+        toggleBtn.classList.remove('hidden');
+    } else {
+        sidebar.classList.add('hidden');
+        resizer.classList.add('hidden');
+        container.classList.add('hidden-main');
+        toggleBtn.classList.add('hidden');
+    }
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     init();
     calculateTotalCost();
     setupResizer();
+    // Apply initial visibility state
+    toggleSidebarUI(sidebarVisible);
 });

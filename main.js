@@ -52,7 +52,8 @@ const store = new Store({
       width: 1200,
       height: 800
     },
-    sidebarWidth: 260
+    sidebarWidth: 260,
+    sidebarVisibility: true
   }
 });
 
@@ -404,6 +405,11 @@ function saveWindowBounds() {
 
 ipcMain.handle('save-sidebar-width', (event, width) => {
   store.set('sidebarWidth', width);
+  return true;
+});
+
+ipcMain.handle('save-sidebar-visibility', (event, visibility) => {
+  store.set('sidebarVisibility', visibility);
   return true;
 });
 

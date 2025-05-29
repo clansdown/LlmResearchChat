@@ -33,5 +33,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Delete conversation
   deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id),
-  saveSidebarWidth: (width) => ipcRenderer.invoke('save-sidebar-width', width)
+  saveSidebarWidth: (width) => ipcRenderer.invoke('save-sidebar-width', width),
+  saveSidebarVisibility: (visibility) => ipcRenderer.invoke('save-sidebar-visibility', visibility)
 });
