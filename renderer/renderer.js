@@ -449,7 +449,7 @@ async function callOpenRouterStreaming(messages) {
                 max_tokens: 8192,
                 plugins: document.getElementById('web-toggle').classList.contains('active') ? [{
                     id: "web",
-                    max_results: document.getElementById('web-results-override').value || settings.webMaxResults || 3,
+                    max_results: parseInt(document.getElementById('web-results-override').value) || settings.webMaxResults || 3,
                 }] : [],
             }),
             signal: abortController.signal
