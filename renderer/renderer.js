@@ -112,7 +112,6 @@ function setupEventListeners() {
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const newConversationBtn = document.getElementById('new-conversation-btn');
-    const settingsBtn = document.getElementById('settings-btn');
     const modelSelector = document.getElementById('model-selector');
     const systemPromptSelector = document.getElementById('system-prompt-selector');
     
@@ -135,9 +134,6 @@ function setupEventListeners() {
     
     // New conversation button
     newConversationBtn.addEventListener('click', createNewConversation);
-    
-    // Settings button
-    settingsBtn.addEventListener('click', openSettings);
     
     // Settings modal buttons
     const saveSettingsBtn = document.querySelector('.modal-footer .btn-primary');
@@ -228,10 +224,6 @@ function setupIPCListeners() {
     
     window.electronAPI.onSaveConversation(() => {
         saveCurrentConversation();
-    });
-    
-    window.electronAPI.onOpenSettings(() => {
-        openSettings();
     });
     
     window.electronAPI.onToggleSidebar(() => {
