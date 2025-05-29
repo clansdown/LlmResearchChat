@@ -1517,19 +1517,23 @@ function extractLinks(content) {
 function createPreviewContent(content, cost) {
     const preview = content.length > 100 ? content.substring(0, 100) + '...' : content;
     let costHtml = '';
-    if (cost && cost > 0) {
-        costHtml = `<div class="preview-cost">Cost: $${cost.toFixed(2)}</div>`;
+    if (cost !== null && cost !== undefined) {
+        // Handle both number and string representations
+        const costValue = typeof cost === 'number' ? cost : parseFloat(cost);
+        if (!isNaN(costValue) && costValue > 0) {
+            costHtml = `<div class="preview-cost">Cost: $${costValue.toFixed(2)}</div>`;
+        }
     }
     return `<div class="preview-content">${escapeHtml(preview)}${costHtml}</div>`;
 }
 
 // Toggle message visibility
-function toggleMessageVisibility(messageDiv, role, content) {
-    const contentDiv = messageDiv.querySelector('.message-content');
-    const isHidden = messageDiv.classList.toggle('hidden-llm');
+function toggleMessageVisibility(messageElement, role, content, cost = null) {
+    const contentDiv = messageElement.querySelector('.message-content');
+    const isHidden = messageElement.classList.toggle('hidden-llm');
     
     // Update the message data in currentConversation
-    const messageIndex = Array.from(messageDiv.parentNode.children).indexOf(messageDiv);
+    const messageIndex = Array.from(messageElement.parentNode.children).indexOf(messageElement);
     // Account for welcome message and adjust index
     let adjustedIndex = messageIndex;
     if (document.querySelector('.welcome-message')) {
@@ -1541,8 +1545,8 @@ function toggleMessageVisibility(messageDiv, role, content) {
     }
 
     if (isHidden) {
-        const messageCost = currentConversation.messages[adjustedIndex]?.cost || null;
-        contentDiv.innerHTML = createPreviewContent(contentDiv.dataset.originalContent, messageCost);
+        const messageCost = cost || currentConversation.messages[adjustedIndex]?.cost || null;
+        contentDiv.innerHTML = createPreviewContent(content, messageCost);
     } else {
         // Re-parse and format the original content
         const linkData = extractLinks(contentDiv.dataset.originalContent);
@@ -1579,7 +1583,7 @@ function toggleMessageVisibility(messageDiv, role, content) {
     }
     
     // Update toggle button icon
-    const toggleIcon = messageDiv.querySelector('.visibility-toggle svg');
+    const toggleIcon = messageElement.querySelector('.visibility-toggle svg');
     toggleIcon.innerHTML = `
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
         <circle cx="12" cy="12" r="3"/>
@@ -1588,7 +1592,7 @@ function toggleMessageVisibility(messageDiv, role, content) {
     
     // Hide edit button for user messages when hidden
     if (role === 'user') {
-        const editBtn = messageDiv.querySelector('.edit-btn');
+        const editBtn = messageElement.querySelector('.edit-btn');
         if (editBtn) {
             editBtn.style.display = isHidden ? 'none' : 'block';
         }
@@ -1617,6 +1621,17 @@ function editMessage(messageElement, content) {
     if (currentConversation.messages[adjustedIndex]) {
         currentConversation.messages[adjustedIndex].hiddenFromLLM = true;
         toggleMessageVisibility(messageElement, 'user', content);
+    }
+    
+    // Hide the next message (assistant response) if it exists
+    const nextElement = messageElement.nextElementSibling;
+    if (nextElement && nextElement.classList.contains('assistant')) {
+        const contentDiv = nextElement.querySelector('.message-content');
+        const originalContent = contentDiv.dataset.originalContent;
+        const cost = nextElement.querySelector('.message-cost')?.textContent.match(/\d+\.\d+/)?.[0] || null;
+        
+        // Hide the assistant message
+        toggleMessageVisibility(nextElement, 'assistant', originalContent, cost);
     }
     
     // Auto-save if enabled
