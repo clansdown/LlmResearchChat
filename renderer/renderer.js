@@ -309,7 +309,11 @@ async function sendMessage() {
     
     // Add user message
     appendMessage('user', message);
-    currentConversation.messages.push({ role: 'user', content: message });
+    currentConversation.messages.push({ 
+        role: 'user', 
+        content: message,
+        hiddenFromLLM: false
+    });
     
     // Clear input
     messageInput.value = '';
@@ -565,7 +569,8 @@ async function callOpenRouterStreaming(messages) {
         modelId: currentConversation.model,
         generation: generationData || latestGeneration, // Prefer generation API response
         requestId: latestGeneration.id,
-        cost: cost
+        cost: cost,
+        hiddenFromLLM: false
     });
     
    
