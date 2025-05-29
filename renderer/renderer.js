@@ -213,7 +213,7 @@ function setupEventListeners() {
     });
     
     // Add sidebar toggle handler
-    document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+    document.getElementById('sidebar-toggle').addEventListener('click', () => toggleSidebar());
 }
 
 // Set up IPC listeners
@@ -232,6 +232,10 @@ function setupIPCListeners() {
     
     window.electronAPI.onOpenSettings(() => {
         openSettings();
+    });
+    
+    window.electronAPI.onToggleSidebar(() => {
+        toggleSidebar();
     });
 }
 

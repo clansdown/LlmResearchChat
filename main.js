@@ -140,6 +140,8 @@ function createWindow() {
 }
 
 function createMenu() {
+  const initialVisibility = store.get('sidebarVisibility', true);
+
   const template = [
     {
       label: 'File',
@@ -212,6 +214,19 @@ function createMenu() {
         { label: 'Force Reload', accelerator: 'CmdOrCtrl+Shift+R', role: 'forceReload' },
         { label: 'Toggle Developer Tools', accelerator: 'F12', role: 'toggleDevTools' },
         { type: 'separator' },
+        {
+          type: 'checkbox',
+          label: 'Show Sidebar',
+          id: 'sidebar-toggle-menu-item',
+          accelerator: 'CmdOrCtrl+B',
+          checked: initialVisibility,
+          click: (menuItem) => {
+            const newVisibility = menuItem.checked;
+            store.set('sidebarVisibility', newVisibility);
+            mainWindow.webContents.send('toggle-sidebar', newVisibility);
+          }
+        },
+        { type: 'separator' },
         { label: 'Actual Size', accelerator: 'CmdOrCtrl+0', role: 'resetZoom' },
         { label: 'Zoom In', accelerator: 'CmdOrCtrl+Plus', role: 'zoomIn' },
         { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', role: 'zoomOut' },
@@ -240,6 +255,19 @@ function createMenu() {
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+}
+
+function updateMenuCheckbox(visible) {
+  const menu = Menu.getApplicationMenu();
+  if (!menu) return;
+  
+  const viewMenu = menu.items.find(item => item.label === 'View');
+  if (!viewMenu || !viewMenu.submenu) return;
+
+  const toggleItem = viewMenu.submenu.items.find(item => item.id === 'sidebar-toggle-menu-item');
+  if (toggleItem) {
+    toggleItem.checked = visible;
+  }
 }
 
 // IPC handlers
@@ -410,6 +438,7 @@ ipcMain.handle('save-sidebar-width', (event, width) => {
 
 ipcMain.handle('save-sidebar-visibility', (event, visibility) => {
   store.set('sidebarVisibility', visibility);
+  updateMenuCheckbox(visibility);
   return true;
 });
 

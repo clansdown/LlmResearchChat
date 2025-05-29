@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onLoadConversation: (callback) => ipcRenderer.on('load-conversation', (event, data) => callback(data)),
   onSaveConversation: (callback) => ipcRenderer.on('save-conversation', callback),
   onOpenSettings: (callback) => ipcRenderer.on('open-settings', callback),
+  onToggleSidebar: (callback) => ipcRenderer.on('toggle-sidebar', (event, visible) => callback(visible)),
   
   // Remove event listeners
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
