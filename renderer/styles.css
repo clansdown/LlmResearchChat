@@ -1045,6 +1045,31 @@ body {
     margin-bottom: 8px;
 }
 
+.message-actions {
+  display: flex;
+  gap: 4px;
+  margin-right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.edit-btn:hover {
+  background-color: var(--bg-tertiary);
+}
+
 .visibility-toggle {
     background: none;
     border: none;
@@ -1082,4 +1107,23 @@ body {
 .hidden-llm .preview-content {
     opacity: 0.6;
     filter: grayscale(0.8);
+}
+
+/* Ensure proper ordering for user message header elements */
+.message.user .message-header {
+    display: flex;
+    flex-direction: row;
+}
+
+.message.user .message-actions {
+    order: 1;
+    margin-right: 8px;
+}
+
+.message.user .message-avatar {
+    order: 2;
+}
+
+.message.user .visibility-toggle {
+    order: 3;
 }

@@ -599,6 +599,23 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     const header = document.createElement('div');
     header.className = 'message-header';
     
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+    
+    // Add edit button for user messages
+    if (role === 'user') {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-btn';
+        editBtn.title = 'Edit message';
+        editBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5L2 22l1.5-5.5L17 3z"/>
+            </svg>
+        `;
+        editBtn.onclick = () => editMessage(messageDiv, content);
+        actions.appendChild(editBtn);
+    }
+    
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
     
@@ -634,6 +651,8 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     `;
     toggleBtn.onclick = () => toggleMessageVisibility(messageDiv, role, content);
     
+    // Add elements in new order: actions -> avatar -> toggle
+    header.appendChild(actions);
     header.appendChild(avatar);
     if (role !== 'system') {
         header.appendChild(toggleBtn);
@@ -1566,6 +1585,39 @@ function toggleMessageVisibility(messageDiv, role, content) {
         <circle cx="12" cy="12" r="3"/>
         ${isHidden ? '<path d="M2 2l20 20" stroke-width="2.5"/>' : ''}
     `;
+    
+    // Hide edit button for user messages when hidden
+    if (role === 'user') {
+        const editBtn = messageDiv.querySelector('.edit-btn');
+        if (editBtn) {
+            editBtn.style.display = isHidden ? 'none' : 'block';
+        }
+    }
+    
+    // Auto-save if enabled
+    if (settings.autoSave && currentConversation.messages.length > 0) {
+        window.electronAPI.addToHistory(currentConversation);
+    }
+}
+
+// Edit message
+function editMessage(messageElement, content) {
+    const messageInput = document.getElementById('message-input');
+    messageInput.value = content;
+    messageInput.focus();
+    
+    // Hide this message from LLM
+    const index = Array.from(messageElement.parentNode.children).indexOf(messageElement);
+    // Account for welcome message
+    let adjustedIndex = index;
+    if (document.querySelector('.welcome-message')) {
+        adjustedIndex = index - 1;
+    }
+    
+    if (currentConversation.messages[adjustedIndex]) {
+        currentConversation.messages[adjustedIndex].hiddenFromLLM = true;
+        toggleMessageVisibility(messageElement, 'user', content);
+    }
     
     // Auto-save if enabled
     if (settings.autoSave && currentConversation.messages.length > 0) {
