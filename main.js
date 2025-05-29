@@ -210,10 +210,6 @@ function createMenu() {
     {
       label: 'View',
       submenu: [
-        { label: 'Reload', accelerator: 'CmdOrCtrl+R', role: 'reload' },
-        { label: 'Force Reload', accelerator: 'CmdOrCtrl+Shift+R', role: 'forceReload' },
-        { label: 'Toggle Developer Tools', accelerator: 'F12', role: 'toggleDevTools' },
-        { type: 'separator' },
         {
           type: 'checkbox',
           label: 'Show Sidebar',
@@ -248,6 +244,15 @@ function createMenu() {
               buttons: ['OK']
             });
           }
+        },
+        { type: 'separator' },
+        {
+          label: 'Developer',
+          submenu: [
+            { label: 'Reload', accelerator: 'CmdOrCtrl+R', role: 'reload' },
+            { label: 'Force Reload', accelerator: 'CmdOrCtrl+Shift+R', role: 'forceReload' },
+            { label: 'Toggle Developer Tools', accelerator: 'F12', role: 'toggleDevTools' }
+          ]
         }
       ]
     }
