@@ -32,5 +32,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAvailableModels: () => ipcRenderer.invoke('get-available-models'),
   
   // Delete conversation
-  deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id)
+  deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id),
+  saveSidebarWidth: (width) => ipcRenderer.invoke('save-sidebar-width', width)
 });

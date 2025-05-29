@@ -51,7 +51,8 @@ const store = new Store({
       y: undefined,
       width: 1200,
       height: 800
-    }
+    },
+    sidebarWidth: 260
   }
 });
 
@@ -400,6 +401,11 @@ function saveWindowBounds() {
     });
   }
 }
+
+ipcMain.handle('save-sidebar-width', (event, width) => {
+  store.set('sidebarWidth', width);
+  return true;
+});
 
 function debounce(func, wait) {
   let timeout;

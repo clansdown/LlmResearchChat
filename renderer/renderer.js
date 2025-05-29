@@ -60,6 +60,11 @@ function applySettings() {
     // Apply font size to CSS variable
     document.documentElement.style.setProperty('--base-font-size', settings.fontSize);
     
+    // Apply saved sidebar width
+    if (settings.sidebarWidth) {
+        document.documentElement.style.setProperty('--sidebar-width', `${settings.sidebarWidth}px`);
+    }
+    
     // Update settings modal
     document.getElementById('api-key').value = settings.apiKey || '';
     document.getElementById('theme-select').value = settings.theme;
@@ -1590,6 +1595,11 @@ function setupResizer() {
             isResizing = false;
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
+            
+            // Save the new width
+            const newWidth = parseInt(getComputedStyle(document.documentElement)
+                .getPropertyValue('--sidebar-width'));
+            window.electronAPI.saveSidebarWidth(newWidth);
         }
     });
 }
