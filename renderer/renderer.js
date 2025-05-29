@@ -229,6 +229,11 @@ function setupIPCListeners() {
     window.electronAPI.onToggleSidebar(() => {
         toggleSidebar();
     });
+    
+    // Add this listener back for the Settings menu item
+    window.electronAPI.onOpenSettings(() => {
+        openSettings();
+    });
 }
 
 // Create a new conversation
