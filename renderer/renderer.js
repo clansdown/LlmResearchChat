@@ -25,6 +25,7 @@ let abortController = null;
 let cachedModels = null;
 let includePreviousMessagesInContext = true;
 let previousMessagesContextWindow = 8000;
+let sidebarVisible;
 
 // Initialize the application
 async function init() {
@@ -719,8 +720,11 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
     
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Scroll to bottom if near bottom
+    const isNearBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 200;
+    if (isNearBottom) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
     
     // Update total cost
     calculateTotalCost();
@@ -1711,6 +1715,31 @@ function toggleSidebarUI(visible) {
     }
 }
 
+// Setup scroll to bottom button
+function setupScrollToBottomButton() {
+    const chatMessages = document.getElementById('chat-messages');
+    const scrollButton = document.getElementById('scroll-to-bottom-btn');
+    
+    if (!chatMessages || !scrollButton) return;
+    
+    // Check if scrolled to bottom
+    const checkScroll = () => {
+        const isAtBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 1;
+        scrollButton.classList.toggle('visible', !isAtBottom);
+    };
+    
+    // Initial check
+    checkScroll();
+    
+    // Add scroll event listener
+    chatMessages.addEventListener('scroll', checkScroll);
+    
+    // Add click handler
+    scrollButton.addEventListener('click', () => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     init();
@@ -1718,4 +1747,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupResizer();
     // Apply initial visibility state
     toggleSidebarUI(sidebarVisible);
+    setupScrollToBottomButton();
 });
