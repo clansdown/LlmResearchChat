@@ -986,6 +986,40 @@ body {
     margin-bottom: 16px;
 }
 
+/* Quick Actions Toolbar */
+.quick-actions {
+    position: absolute;
+    display: none;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    border: 2px solid var(--accent-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 6px 8px;
+    z-index: 100;
+    gap: 6px;
+}
+
+.quick-actions.visible {
+    display: flex;
+}
+
+.quick-btn {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
 /* Message links */
 .message-links {
     margin-top: 1rem;

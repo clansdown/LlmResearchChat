@@ -26,6 +26,7 @@ let cachedModels = null;
 let includePreviousMessagesInContext = true;
 let previousMessagesContextWindow = 8000;
 let sidebarVisible;
+let quickActionsTimeout;
 
 // Initialize the application
 async function init() {
@@ -182,6 +183,22 @@ function setupEventListeners() {
     // Add Wikipedia button click handler
     const wikipediaBtn = document.getElementById('wikipedia-btn');
     wikipediaBtn.addEventListener('click', performWikipediaSearch);
+    
+    // Add selection listener for chat messages
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.addEventListener('mouseup', handleTextSelection);
+    chatMessages.addEventListener('mousedown', hideQuickActions);
+    
+    // Add quick action button handlers
+    document.getElementById('quick-wikipedia').addEventListener('click', () => {
+        const text = getSelectedText();
+        if (text) performWikipediaSearch(text);
+    });
+    
+    document.getElementById('quick-websearch').addEventListener('click', () => {
+        const text = getSelectedText();
+        if (text) performSearch(text);
+    });
     
     // Add web toggle click handler
     const webToggle = document.getElementById('web-toggle');
@@ -1402,12 +1419,12 @@ function handleSelectionChange() {
     document.getElementById('wikipedia-btn').disabled = !shouldEnable;
 }
 
-function performSearch() {
-    const selection = window.getSelection().toString().trim();
-    if (!selection) return;
+function performSearch(text) {
+    if (!text) text = window.getSelection().toString().trim();
+    if (!text) return;
 
     const searchEngine = settings.searchEngine || 'google';
-    const query = encodeURIComponent(selection);
+    const query = encodeURIComponent(text);
     let url;
 
     switch (searchEngine) {
@@ -1429,11 +1446,11 @@ function performSearch() {
     window.electronAPI.openExternal(url);
 }
 
-function performWikipediaSearch() {
-    const selection = window.getSelection().toString().trim();
-    if (!selection) return;
+function performWikipediaSearch(text) {
+    if (!text) text = window.getSelection().toString().trim();
+    if (!text) return;
 
-    const query = encodeURIComponent(selection);
+    const query = encodeURIComponent(text);
     const url = `https://en.wikipedia.org/wiki/Special:Search?search=${query}`;
     window.electronAPI.openExternal(url);
 }
@@ -1486,6 +1503,50 @@ window.updateSystemPromptName = updateSystemPromptName;
 window.updateSystemPromptContent = updateSystemPromptContent;
 window.setDefaultSystemPrompt = setDefaultSystemPrompt;
 window.deleteSystemPrompt = deleteSystemPrompt;
+
+// Add new helper functions
+function handleTextSelection() {
+    clearTimeout(quickActionsTimeout);
+    quickActionsTimeout = setTimeout(() => {
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        if (selectedText && isSelectionInChatMessages()) {
+            showQuickActions(selection.getRangeAt(0).getBoundingClientRect());
+        } else {
+            hideQuickActions();
+        }
+    }, 100);
+}
+
+function isSelectionInChatMessages() {
+    const selection = window.getSelection();
+    const chatMessages = document.getElementById('chat-messages');
+    return selection.rangeCount > 0 && 
+           chatMessages.contains(selection.anchorNode);
+}
+
+function showQuickActions(rect) {
+    const quickActions = document.getElementById('quick-actions');
+    if (!quickActions) return;
+    
+    quickActions.classList.add('visible');
+    
+    // Position toolbar below selection
+    quickActions.style.top = `${rect.bottom + window.scrollY + 5}px`;
+    quickActions.style.left = `${rect.left + window.scrollX}px`;
+}
+
+function hideQuickActions() {
+    const quickActions = document.getElementById('quick-actions');
+    if (quickActions) {
+        quickActions.classList.remove('visible');
+    }
+}
+
+function getSelectedText() {
+    return window.getSelection().toString().trim();
+}
 
 // Add link extraction function
 function extractLinks(content) {
@@ -1748,4 +1809,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply initial visibility state
     toggleSidebarUI(sidebarVisible);
     setupScrollToBottomButton();
+    
+    // Add click listener to hide quick actions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#quick-actions') && 
+            !e.target.closest('.message-content')) {
+            hideQuickActions();
+        }
+    });
 });
