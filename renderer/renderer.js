@@ -737,6 +737,9 @@ function appendMessage(role, content, animate = true, modelName = null, modelId 
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
     
+    // Add event listener for the new quick-chat button
+    document.getElementById('quick-chat').addEventListener('click', handleQuickChat);
+    
     // Scroll to bottom if near bottom
     const isNearBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 200;
     if (isNearBottom) {
@@ -1517,6 +1520,19 @@ function handleTextSelection() {
             hideQuickActions();
         }
     }, 100);
+}
+
+function handleQuickChat() {
+    const text = getSelectedText();
+    if (!text) return;
+    
+    const messageInput = document.getElementById('message-input');
+    messageInput.value = `what is ${text}`;
+    messageInput.focus();
+    
+    // Clear selection
+    window.getSelection().removeAllRanges();
+    hideQuickActions();
 }
 
 function isSelectionInChatMessages() {
